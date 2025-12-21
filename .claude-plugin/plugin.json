@@ -1,0 +1,6 @@
+{
+  "name": "cortex",
+  "version": "0.1.0",
+  "description": "Hierarchical dynamic domain ontology. Self-aware agents with identity/location separation. Install as .claude/ in any project.",
+  "keywords": ["meta-agentic", "ontology", "hierarchy", "stateful"]
+}

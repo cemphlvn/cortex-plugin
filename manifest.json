@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "agents": {
+    "meta-agent": {
+      "path": "./agents/meta-agent",
+      "domain": "meta"
+    }
+  },
+  "functors": {},
+  "worlds": {}
+}
