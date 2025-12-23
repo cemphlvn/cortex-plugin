@@ -3,6 +3,7 @@ import FoundationModels
 
 /// Runtime representation of a compiled Prism
 /// Created from PrismDefinition, contains schema + decoder
+@available(iOS 26.0, *)
 struct PrismExecutable: Sendable {
     /// Original Prism ID
     let prismId: UUID

@@ -2,7 +2,7 @@ import Foundation
 
 /// Pure data representation of a Prism
 /// This is what gets stored and can be created by users
-struct PrismDefinition: Codable, Identifiable, Sendable, Equatable {
+struct PrismDefinition: Codable, Identifiable, Sendable, Equatable, Hashable {
     /// Unique identifier
     let id: UUID
     /// Human-readable name
@@ -30,5 +30,14 @@ struct PrismDefinition: Codable, Identifiable, Sendable, Equatable {
         self.incidentBeam = incidentBeam
         self.refractedBeams = refractedBeams
         self.version = version
+    }
+}
+
+// MARK: - Hashable (for NavigationDestination)
+
+extension PrismDefinition {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(version)
     }
 }

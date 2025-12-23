@@ -1,0 +1,53 @@
+{
+  "id": "22222222-2222-2222-2222-222222222222",
+  "name": "Meeting Notes",
+  "instructions": "Extract structured meeting notes from raw text. Be concise and action-oriented. Focus on decisions and next steps.",
+  "incidentBeam": {
+    "type": "string",
+    "description": "Raw meeting transcript or notes to structure."
+  },
+  "refractedBeams": [
+    {
+      "id": "summary",
+      "title": "Summary",
+      "description": "High-level meeting summary",
+      "fields": [
+        {
+          "key": "title",
+          "guide": "Brief meeting title, 3-6 words.",
+          "valueType": "string"
+        },
+        {
+          "key": "summary",
+          "guide": "One paragraph summary of what was discussed.",
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "action_items",
+      "title": "Action Items",
+      "description": "Tasks and next steps",
+      "fields": [
+        {
+          "key": "tasks",
+          "guide": "List of action items. Each item: [Owner] - [Task]. Max 5 items.",
+          "valueType": "stringArray"
+        }
+      ]
+    },
+    {
+      "id": "decisions",
+      "title": "Decisions",
+      "description": "Key decisions made",
+      "fields": [
+        {
+          "key": "decisions",
+          "guide": "List of decisions made during the meeting. Short and clear.",
+          "valueType": "stringArray"
+        }
+      ]
+    }
+  ],
+  "version": 1
+}

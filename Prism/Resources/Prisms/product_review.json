@@ -1,0 +1,58 @@
+{
+  "id": "33333333-3333-3333-3333-333333333333",
+  "name": "Product Review",
+  "instructions": "Analyze a product review and extract structured sentiment and key points. Be balanced and objective.",
+  "incidentBeam": {
+    "type": "string",
+    "description": "A product review to analyze."
+  },
+  "refractedBeams": [
+    {
+      "id": "sentiment",
+      "title": "Sentiment",
+      "description": "Overall sentiment analysis",
+      "fields": [
+        {
+          "key": "rating",
+          "guide": "Overall sentiment: Positive, Neutral, or Negative.",
+          "valueType": "string"
+        },
+        {
+          "key": "confidence",
+          "guide": "Confidence level: High, Medium, or Low.",
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "highlights",
+      "title": "Highlights",
+      "description": "Key points from the review",
+      "fields": [
+        {
+          "key": "pros",
+          "guide": "Positive aspects mentioned. Max 4 items.",
+          "valueType": "stringArray"
+        },
+        {
+          "key": "cons",
+          "guide": "Negative aspects mentioned. Max 4 items.",
+          "valueType": "stringArray"
+        }
+      ]
+    },
+    {
+      "id": "summary",
+      "title": "Summary",
+      "description": "Brief summary",
+      "fields": [
+        {
+          "key": "one_liner",
+          "guide": "One sentence summary of the review.",
+          "valueType": "string"
+        }
+      ]
+    }
+  ],
+  "version": 1
+}

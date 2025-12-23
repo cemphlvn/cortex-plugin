@@ -1,0 +1,29 @@
+{
+  "id": "11111111-1111-1111-1111-111111111111",
+  "name": "Caption Creator",
+  "instructions": "Create a short, catchy social media caption. Keep it warm and minimal. No emojis unless user includes them in their input.",
+  "incidentBeam": {
+    "type": "string",
+    "description": "A scene, thought, or moment to caption."
+  },
+  "refractedBeams": [
+    {
+      "id": "caption_main",
+      "title": "Caption",
+      "description": "Main caption output",
+      "fields": [
+        {
+          "key": "caption",
+          "guide": "One sentence caption, max 12 words. Evocative and engaging.",
+          "valueType": "string"
+        },
+        {
+          "key": "hashtags",
+          "guide": "3-5 relevant hashtags without the # symbol.",
+          "valueType": "stringArray"
+        }
+      ]
+    }
+  ],
+  "version": 1
+}

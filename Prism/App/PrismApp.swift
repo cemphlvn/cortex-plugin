@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct PrismApp: App {
@@ -6,6 +7,7 @@ struct PrismApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: PrismRecord.self)
     }
 }
 
@@ -15,4 +17,8 @@ struct ContentView: View {
             PrismListView()
         }
     }
+}
+
+#Preview {
+    ContentView()
 }
