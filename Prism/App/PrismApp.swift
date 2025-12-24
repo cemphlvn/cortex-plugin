@@ -5,9 +5,36 @@ import SwiftData
 struct PrismApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
         .modelContainer(for: PrismRecord.self)
+    }
+}
+
+// MARK: - Root View (Onboarding Gate)
+
+struct RootView: View {
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var showOnboarding = false
+    @State private var onboardingDestination: OnboardingLibraryView.OnboardingDestination?
+
+    var body: some View {
+        ContentView(initialTab: onboardingDestination == .creator ? .creator : .prisms)
+            .fullScreenCover(isPresented: $showOnboarding) {
+                OnboardingContainerView { destination in
+                    onboardingDestination = destination
+                    hasCompletedOnboarding = true
+                    showOnboarding = false
+                }
+            }
+            .onAppear {
+                if !hasCompletedOnboarding {
+                    // Small delay to ensure smooth presentation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        showOnboarding = true
+                    }
+                }
+            }
     }
 }
 
@@ -21,9 +48,16 @@ enum AppTab: String, CaseIterable {
 // MARK: - Content View
 
 struct ContentView: View {
+    var initialTab: AppTab = .prisms
+
     @State private var selectedTab: AppTab = .prisms
     @State private var prismPath = NavigationPath()
     @State private var createdPrismToShow: PrismDefinition?
+
+    init(initialTab: AppTab = .prisms) {
+        self.initialTab = initialTab
+        _selectedTab = State(initialValue: initialTab)
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {

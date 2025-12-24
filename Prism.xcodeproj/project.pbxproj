@@ -16,19 +16,25 @@
 		19BD1D2AE0059079E5D68F16 /* ArchetypeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FAB00A7BFB9B7A6D0B3C53 /* ArchetypeSpec.swift */; };
 		1A0DDCC0166FA859C548696B /* PrismRunView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE45F7B71A9B73C08728D4A /* PrismRunView.swift */; };
 		2068E29451F82E8DD5AFA620 /* PrismTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31F020D16EC09F9C2017682 /* PrismTheme.swift */; };
+		26537C11E29D3DA4F69D3E6F /* OnboardingRevealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155991EFEDC6DCFEFFF95829 /* OnboardingRevealView.swift */; };
 		26CD6D1D0908078DEA89EB03 /* FoundationModels.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9869903CE1248290718B2F6 /* FoundationModels.framework */; };
 		46AECFEE2857C0A90D58B07E /* PrismExecutableCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A15C998FA6AEE3CE7A128F6 /* PrismExecutableCache.swift */; };
+		46E2BB158AC3627A9DF6FDFC /* OnboardingEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = F969F813E764F00EA7855B93 /* OnboardingEffects.swift */; };
 		5041D68ABC20CF45F18F667C /* ArchetypePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48DF1A015DD752B947E565E1 /* ArchetypePickerView.swift */; };
 		53663DA182872DAD28F15CE4 /* PrismEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E12C83D00CC6F597750FB1A /* PrismEngine.swift */; };
 		563F2FEDBE9F30A693F16170 /* meeting_notes.json in Resources */ = {isa = PBXBuildFile; fileRef = 9D6CCE7D29D598945C19012B /* meeting_notes.json */; };
 		632379F6DA3D0E11711871E1 /* PrismApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0FE572AD856E190D4583B1 /* PrismApp.swift */; };
+		6889D844735234AD9FDCE81E /* OnboardingVoidView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44AAC7BE20C33779F952D127 /* OnboardingVoidView.swift */; };
 		68B96C55128DBBF4BDBA6BDE /* CreatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE786A9540D7E338EE20A141 /* CreatorView.swift */; };
+		6B2F821DBD687EDE8BB1CCB1 /* OnboardingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0289091D09199DD13F6626C /* OnboardingContainerView.swift */; };
 		704A0D9B6CBA85167A4EEB87 /* BeamSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FE37F4E1BC11962A2DF8B67 /* BeamSpec.swift */; };
 		70630BF2A0343BD37CCC8C4F /* PrismAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D849068767E8B515CEBFF2E /* PrismAnimation.swift */; };
+		7A4BFD456BBCD8D68C926391 /* OnboardingLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A3D0CC6B3677BA8867BC5A /* OnboardingLibraryView.swift */; };
 		7B4B1733557D8226CE1E46A3 /* PrismExecutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4CAF8D503306110FFFFB356 /* PrismExecutable.swift */; };
 		8F7DD4196A5D1E62BC6D0016 /* PrismEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02271AC1011B483FD46465E /* PrismEditView.swift */; };
 		90A8666F35DED9EBBE53B40B /* PrismLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF02620730B1C71B88EE4051 /* PrismLoader.swift */; };
 		9995BB1D2FD979A69E5A5F74 /* PrismBlueprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6AAC4C66AB7A49A42734B84 /* PrismBlueprint.swift */; };
+		9AA29977EBC0BA2DF2DF9388 /* OnboardingDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAA9F714D510B1D4D98B0C99 /* OnboardingDemoView.swift */; };
 		9B826F1A879805B57ABCB77C /* CreatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96445DBDA1C80D713276E8E5 /* CreatorViewModel.swift */; };
 		9E5012EBCC46D72DBA3B8FE9 /* PrismRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFE11F1FF281366AFA86EC4 /* PrismRepository.swift */; };
 		A992F5945814831ED4D708FA /* ChatPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5333705C14F91A8B48D971C9 /* ChatPanel.swift */; };
@@ -38,6 +44,7 @@
 		B86E62797B1FBD6304514C19 /* PrismDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66DCFCA6E72A0E3ADF6BE06B /* PrismDefinition.swift */; };
 		BD23340731BAEDA615135997 /* BeamOutputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6379A5E33EE2B3422E67384F /* BeamOutputView.swift */; };
 		BF4F51851E8D9658935C15E2 /* PrismListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1572B1DD625664720970C34 /* PrismListView.swift */; };
+		CA49A903F06DE1595FBB0C0A /* OnboardingShowcaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 812E7E6038AA86F866011F2F /* OnboardingShowcaseView.swift */; };
 		DF5F6F67ABE9D196BC05FD03 /* caption_creator.json in Resources */ = {isa = PBXBuildFile; fileRef = 049A63CADD7BA5FA3975F5A5 /* caption_creator.json */; };
 		E2B239CC540BB0D7D1B91509 /* PrizmateCompiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05EA48F4106529029883014 /* PrizmateCompiler.swift */; };
 		EDD4A4CC8A418C346781F730 /* PrismSchemaCompiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D63F3CE41E5E4595017F9E6 /* PrismSchemaCompiler.swift */; };
@@ -49,6 +56,7 @@
 		042164A669C652FF9FDD0E5C /* PrismEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismEffects.swift; sourceTree = "<group>"; };
 		049A63CADD7BA5FA3975F5A5 /* caption_creator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = caption_creator.json; sourceTree = "<group>"; };
 		0D849068767E8B515CEBFF2E /* PrismAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismAnimation.swift; sourceTree = "<group>"; };
+		155991EFEDC6DCFEFFF95829 /* OnboardingRevealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingRevealView.swift; sourceTree = "<group>"; };
 		1A15C998FA6AEE3CE7A128F6 /* PrismExecutableCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismExecutableCache.swift; sourceTree = "<group>"; };
 		1AE45F7B71A9B73C08728D4A /* PrismRunView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismRunView.swift; sourceTree = "<group>"; };
 		1E0FE572AD856E190D4583B1 /* PrismApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismApp.swift; sourceTree = "<group>"; };
@@ -57,21 +65,26 @@
 		356330BF7FD752CCE7DBBF65 /* BeamValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamValue.swift; sourceTree = "<group>"; };
 		3CBECDC40DB2F7D8BF88B956 /* Prism.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Prism.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		41CEC32FDDB6F0D060420924 /* GoldenPrismAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoldenPrismAgent.swift; sourceTree = "<group>"; };
+		44AAC7BE20C33779F952D127 /* OnboardingVoidView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingVoidView.swift; sourceTree = "<group>"; };
 		48DF1A015DD752B947E565E1 /* ArchetypePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchetypePickerView.swift; sourceTree = "<group>"; };
+		51A3D0CC6B3677BA8867BC5A /* OnboardingLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingLibraryView.swift; sourceTree = "<group>"; };
 		5333705C14F91A8B48D971C9 /* ChatPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPanel.swift; sourceTree = "<group>"; };
 		6379A5E33EE2B3422E67384F /* BeamOutputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamOutputView.swift; sourceTree = "<group>"; };
 		66DCFCA6E72A0E3ADF6BE06B /* PrismDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismDefinition.swift; sourceTree = "<group>"; };
 		72B3906596C5ADF6838E4A6D /* AtelierPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtelierPanel.swift; sourceTree = "<group>"; };
 		72FAB00A7BFB9B7A6D0B3C53 /* ArchetypeSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchetypeSpec.swift; sourceTree = "<group>"; };
 		7FE37F4E1BC11962A2DF8B67 /* BeamSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamSpec.swift; sourceTree = "<group>"; };
+		812E7E6038AA86F866011F2F /* OnboardingShowcaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingShowcaseView.swift; sourceTree = "<group>"; };
 		8D63F3CE41E5E4595017F9E6 /* PrismSchemaCompiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismSchemaCompiler.swift; sourceTree = "<group>"; };
 		96445DBDA1C80D713276E8E5 /* CreatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatorViewModel.swift; sourceTree = "<group>"; };
 		9D6CCE7D29D598945C19012B /* meeting_notes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = meeting_notes.json; sourceTree = "<group>"; };
 		AF02620730B1C71B88EE4051 /* PrismLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismLoader.swift; sourceTree = "<group>"; };
 		B5F7AD5ADD04D4547DC143D8 /* BeamSlotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamSlotView.swift; sourceTree = "<group>"; };
 		C02271AC1011B483FD46465E /* PrismEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismEditView.swift; sourceTree = "<group>"; };
+		C0289091D09199DD13F6626C /* OnboardingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainerView.swift; sourceTree = "<group>"; };
 		C05EA48F4106529029883014 /* PrizmateCompiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrizmateCompiler.swift; sourceTree = "<group>"; };
 		C1572B1DD625664720970C34 /* PrismListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismListView.swift; sourceTree = "<group>"; };
+		CAA9F714D510B1D4D98B0C99 /* OnboardingDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingDemoView.swift; sourceTree = "<group>"; };
 		DE786A9540D7E338EE20A141 /* CreatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatorView.swift; sourceTree = "<group>"; };
 		E1D41F0DFD9DA1D9843B7671 /* PrismButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismButton.swift; sourceTree = "<group>"; };
 		E4CAF8D503306110FFFFB356 /* PrismExecutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismExecutable.swift; sourceTree = "<group>"; };
@@ -81,6 +94,7 @@
 		EEC3608C73C52550D8E1EF74 /* ModelAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelAvailability.swift; sourceTree = "<group>"; };
 		F31F020D16EC09F9C2017682 /* PrismTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismTheme.swift; sourceTree = "<group>"; };
 		F6D730E7EFD44A6C3A9F4B8C /* PrismRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismRecord.swift; sourceTree = "<group>"; };
+		F969F813E764F00EA7855B93 /* OnboardingEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingEffects.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +116,20 @@
 				5B6B32AF8EB299CB6F93AF17 /* Frameworks */,
 				82EA743558BFD02527A88470 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		4B492309A9EB9ECF3F8AB052 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				C0289091D09199DD13F6626C /* OnboardingContainerView.swift */,
+				CAA9F714D510B1D4D98B0C99 /* OnboardingDemoView.swift */,
+				F969F813E764F00EA7855B93 /* OnboardingEffects.swift */,
+				51A3D0CC6B3677BA8867BC5A /* OnboardingLibraryView.swift */,
+				155991EFEDC6DCFEFFF95829 /* OnboardingRevealView.swift */,
+				812E7E6038AA86F866011F2F /* OnboardingShowcaseView.swift */,
+				44AAC7BE20C33779F952D127 /* OnboardingVoidView.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		5B6B32AF8EB299CB6F93AF17 /* Frameworks */ = {
@@ -212,6 +240,7 @@
 		FDDD2319C18B03CA3673D4CC /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4B492309A9EB9ECF3F8AB052 /* Onboarding */,
 				6379A5E33EE2B3422E67384F /* BeamOutputView.swift */,
 				B5F7AD5ADD04D4547DC143D8 /* BeamSlotView.swift */,
 				0D849068767E8B515CEBFF2E /* PrismAnimation.swift */,
@@ -311,6 +340,13 @@
 				9B826F1A879805B57ABCB77C /* CreatorViewModel.swift in Sources */,
 				FE58364406515A19CDF563D1 /* GoldenPrismAgent.swift in Sources */,
 				0C290FF65837D6D2B6E3FA66 /* ModelAvailability.swift in Sources */,
+				6B2F821DBD687EDE8BB1CCB1 /* OnboardingContainerView.swift in Sources */,
+				9AA29977EBC0BA2DF2DF9388 /* OnboardingDemoView.swift in Sources */,
+				46E2BB158AC3627A9DF6FDFC /* OnboardingEffects.swift in Sources */,
+				7A4BFD456BBCD8D68C926391 /* OnboardingLibraryView.swift in Sources */,
+				26537C11E29D3DA4F69D3E6F /* OnboardingRevealView.swift in Sources */,
+				CA49A903F06DE1595FBB0C0A /* OnboardingShowcaseView.swift in Sources */,
+				6889D844735234AD9FDCE81E /* OnboardingVoidView.swift in Sources */,
 				70630BF2A0343BD37CCC8C4F /* PrismAnimation.swift in Sources */,
 				632379F6DA3D0E11711871E1 /* PrismApp.swift in Sources */,
 				9995BB1D2FD979A69E5A5F74 /* PrismBlueprint.swift in Sources */,
