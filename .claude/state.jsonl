@@ -1,3 +1,7 @@
 {"ts":"2024-12-23T00:00:00Z","type":"created","msg":"cortex initialized - awaiting bootstrap"}
 {"ts":"2025-12-23T18:24:17Z","type":"bootstrap","msg":"initialized Prism iOS app with ios-agent, models-agent; skills: foundation-models, prism-architecture"}
 {"ts":"2025-12-23T18:51:06Z","type":"milestone","msg":"E2E loop complete: PrismList→Run→BeamOutput, SwiftData+repo pattern, bundled JSON prisms"}
+{"ts":"2025-12-24T10:31:44Z","type":"created","msg":"px-agent: first-run UX, microcopy, run-state transitions, beam presentation"}
+{"ts":"2025-12-24T10:58:54Z","type":"milestone","msg":"PX UX implementation: PrismButton, BeamSlotView, staggered reveal, copy actions, exampleInput placeholder"}
+{"ts":"2025-12-24T11:09:28Z","type":"milestone","msg":"Premium polish: SpectralRing, LightSweep, RefractionBurst, PrismHaptics; rainbow=reward rule"}
+{"ts":"2025-12-24T11:28:13Z","type":"milestone","msg":"Dark premium theme complete: near-black bg, dark glass cards, glass triangle Prism button w/ spectral rim, staggered beam reveal, light sweeps, haptics. Build verified."}

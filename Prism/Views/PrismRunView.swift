@@ -6,23 +6,30 @@ struct PrismRunView: View {
 
     @State private var input: String = ""
     @State private var outputs: [BeamOutput] = []
-    @State private var isRunning: Bool = false
+    @State private var runState: RunState = .idle
     @State private var errorMessage: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                // Availability check
-                if #available(iOS 26.0, *) {
-                    availabilityAwareContent
-                } else {
-                    unsupportedOSView
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Availability check
+                    if #available(iOS 26.0, *) {
+                        availabilityAwareContent
+                    } else {
+                        unsupportedOSView
+                    }
                 }
+                .padding()
+                .frame(width: geometry.size.width)
             }
-            .padding()
         }
+        .background(PrismTheme.background)
         .navigationTitle(prism.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(PrismTheme.surface, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
     }
 
     // MARK: - Content Views
@@ -34,81 +41,107 @@ struct PrismRunView: View {
 
         switch availability.status {
         case .available:
-            inputSection
-            runButton
-            errorView
-            outputsSection
+            instrumentPanel
 
         case .unavailable(let reason):
             unavailableView(reason: reason)
 
         case .checking:
             ProgressView("Checking availability...")
+                .tint(PrismTheme.textSecondary)
+        }
+    }
+
+    /// Main instrument panel layout
+    @available(iOS 26.0, *)
+    private var instrumentPanel: some View {
+        VStack(spacing: 28) {
+            // Header: description
+            Text(prism.incidentBeam.description)
+                .font(.subheadline)
+                .foregroundStyle(PrismTheme.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            // Input area
+            inputSection
+
+            // Central Prism button
+            PrismButton(
+                state: runState,
+                isEnabled: isInputValid
+            ) {
+                runPrism()
+            }
+            .padding(.vertical, 8)
+
+            // Error (if any)
+            errorView
+
+            // Beam slots / outputs
+            beamSection
         }
     }
 
     private var inputSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Input")
-                .font(.headline)
-
-            Text(prism.incidentBeam.description)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-
-            TextField("Enter your input...", text: $input, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
-                .lineLimit(3...8)
-        }
-    }
-
-    private var runButton: some View {
-        Button(action: runPrism) {
-            Group {
-                if isRunning {
-                    HStack(spacing: 8) {
-                        ProgressView()
-                            .tint(.white)
-                        Text("Running...")
-                    }
-                } else {
-                    Text("Run Prism")
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 4)
-        }
-        .buttonStyle(.borderedProminent)
-        .disabled(input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isRunning)
+        TextField(
+            prism.inputPlaceholder,
+            text: $input,
+            axis: .vertical
+        )
+        .textFieldStyle(.plain)
+        .padding()
+        .foregroundStyle(PrismTheme.textPrimary)
+        .background(PrismTheme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: PrismTheme.cornerRadius))
+        .overlay(
+            RoundedRectangle(cornerRadius: PrismTheme.cornerRadius)
+                .strokeBorder(PrismTheme.border, lineWidth: 0.5)
+        )
+        .lineLimit(3...8)
+        .disabled(runState == .running)
     }
 
     @ViewBuilder
     private var errorView: some View {
         if let errorMessage {
-            HStack {
+            HStack(spacing: 8) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.red)
+                    .foregroundStyle(PrismTheme.error)
                 Text(errorMessage)
                     .font(.callout)
+                    .foregroundStyle(PrismTheme.textPrimary)
             }
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.red.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .background(PrismTheme.error.opacity(0.15))
+            .clipShape(RoundedRectangle(cornerRadius: PrismTheme.cornerRadius))
         }
     }
 
     @ViewBuilder
-    private var outputsSection: some View {
-        if !outputs.isEmpty {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Output")
-                    .font(.headline)
+    private var beamSection: some View {
+        VStack(spacing: 12) {
+            switch runState {
+            case .idle:
+                // Show skeleton slots
+                ForEach(prism.refractedBeams) { spec in
+                    BeamSlotView(spec: spec)
+                }
 
-                ForEach(outputs) { beam in
+            case .running:
+                // Show skeleton with subtle pulse
+                ForEach(prism.refractedBeams) { spec in
+                    BeamSlotView(spec: spec)
+                        .opacity(0.6)
+                }
+
+            case .revealed:
+                // Show actual outputs with stagger
+                ForEach(Array(outputs.enumerated()), id: \.element.id) { index, beam in
                     BeamOutputView(
                         beam: beam,
-                        spec: prism.refractedBeams.first { $0.id == beam.id }
+                        spec: prism.refractedBeams.first { $0.id == beam.id },
+                        index: index
                     )
                 }
             }
@@ -119,14 +152,15 @@ struct PrismRunView: View {
         VStack(spacing: 16) {
             Image(systemName: "cpu")
                 .font(.system(size: 48))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(PrismTheme.textTertiary)
 
             Text("Apple Intelligence Required")
                 .font(.headline)
+                .foregroundStyle(PrismTheme.textPrimary)
 
             Text(reason.message)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(PrismTheme.textSecondary)
                 .multilineTextAlignment(.center)
 
             if case .appleIntelligenceNotEnabled = reason {
@@ -136,6 +170,7 @@ struct PrismRunView: View {
                     }
                 }
                 .buttonStyle(.bordered)
+                .tint(PrismTheme.textSecondary)
             }
         }
         .frame(maxWidth: .infinity)
@@ -150,14 +185,21 @@ struct PrismRunView: View {
 
             Text("iOS 26 Required")
                 .font(.headline)
+                .foregroundStyle(PrismTheme.textPrimary)
 
             Text("Prism requires iOS 26 or later to run on-device AI models.")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(PrismTheme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
+    }
+
+    // MARK: - State
+
+    private var isInputValid: Bool {
+        !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     // MARK: - Engine Integration
@@ -168,7 +210,7 @@ struct PrismRunView: View {
         let trimmedInput = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedInput.isEmpty else { return }
 
-        isRunning = true
+        runState = .running
         errorMessage = nil
         outputs = []
 
@@ -190,12 +232,12 @@ struct PrismRunView: View {
 
             await MainActor.run {
                 outputs = result
-                isRunning = false
+                runState = .revealed
             }
         } catch {
             await MainActor.run {
                 errorMessage = error.localizedDescription
-                isRunning = false
+                runState = .idle
             }
         }
     }
@@ -204,14 +246,17 @@ struct PrismRunView: View {
 #Preview {
     NavigationStack {
         PrismRunView(prism: PrismDefinition(
-            name: "Test Prism",
-            instructions: "Test instructions",
-            incidentBeam: IncidentBeamSpec(type: "string", description: "Enter something"),
+            name: "Caption Creator",
+            instructions: "Create a short caption",
+            incidentBeam: IncidentBeamSpec(type: "string", description: "A scene to caption"),
             refractedBeams: [
-                BeamSpec(id: "test_beam", title: "Test", fields: [
-                    BeamFieldSpec(key: "output", guide: "Test output", valueType: .string)
+                BeamSpec(id: "caption", title: "Caption", fields: [
+                    BeamFieldSpec(key: "text", guide: "The caption text", valueType: .string),
+                    BeamFieldSpec(key: "hashtags", guide: "Related hashtags", valueType: .stringArray)
                 ])
-            ]
+            ],
+            exampleInput: "sunset walk after a hard week"
         ))
     }
+    .preferredColorScheme(.dark)
 }

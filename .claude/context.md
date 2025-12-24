@@ -78,6 +78,12 @@ Prism/
 | ios-agent | SwiftUI, iOS patterns, UI implementation |
 | models-agent | Foundation Models, schema compilation, engine |
 
+## Rules
+
+- **UI renders from spec order, not model order** — BeamOutputView, BeamSlotView follow `refractedBeams` order
+- **One animation language** — `PrismAnimation.entrance` for all view entrances
+- **Rainbow is a reward, not wallpaper** — black/white baseline; color only when light is doing work (running/success/reveal)
+
 ## Evolution
 
 See `state.jsonl` for history.

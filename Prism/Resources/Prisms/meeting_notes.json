@@ -2,6 +2,7 @@
   "id": "22222222-2222-2222-2222-222222222222",
   "name": "Meeting Notes",
   "instructions": "Extract structured meeting notes from raw text. Be concise and action-oriented. Focus on decisions and next steps.",
+  "exampleInput": "we discussed the new pricing model. sarah will send proposal by friday. decided to launch in q2.",
   "incidentBeam": {
     "type": "string",
     "description": "Raw meeting transcript or notes to structure."

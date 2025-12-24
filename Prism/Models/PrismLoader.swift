@@ -5,12 +5,50 @@ enum PrismLoader {
 
     /// Load all bundled Prisms from the app bundle
     static func loadBundledPrisms() -> [PrismDefinition] {
-        guard let resourceURL = Bundle.main.resourceURL?
-            .appendingPathComponent("Prisms") else {
-            return []
+        // Use urls(forResourcesWithExtension:subdirectory:) for reliable bundle access
+        if let urls = Bundle.main.urls(forResourcesWithExtension: "json", subdirectory: "Prisms"),
+           !urls.isEmpty {
+            print("[PrismLoader] Found \(urls.count) files in Prisms subdirectory")
+            let decoder = JSONDecoder()
+            return urls
+                .compactMap { url -> PrismDefinition? in
+                    guard let data = try? Data(contentsOf: url),
+                          let prism = try? decoder.decode(PrismDefinition.self, from: data) else {
+                        print("[PrismLoader] Failed to decode: \(url.lastPathComponent)")
+                        return nil
+                    }
+                    return prism
+                }
+                .sorted { $0.name < $1.name }
         }
 
-        return loadPrisms(from: resourceURL)
+        // Fallback: try loading from bundle root (flat structure)
+        print("[PrismLoader] No Prisms subdirectory, trying bundle root")
+        let result = loadPrismsFromBundleRoot()
+        print("[PrismLoader] Loaded \(result.count) prisms from bundle root")
+        return result
+    }
+
+    /// Fallback: load JSON files directly from bundle root
+    private static func loadPrismsFromBundleRoot() -> [PrismDefinition] {
+        let decoder = JSONDecoder()
+        let knownFiles = ["caption_creator", "meeting_notes", "product_review"]
+
+        return knownFiles.compactMap { name -> PrismDefinition? in
+            guard let url = Bundle.main.url(forResource: name, withExtension: "json") else {
+                print("[PrismLoader] File not found in bundle: \(name).json")
+                return nil
+            }
+            do {
+                let data = try Data(contentsOf: url)
+                let prism = try decoder.decode(PrismDefinition.self, from: data)
+                print("[PrismLoader] Successfully loaded: \(name).json")
+                return prism
+            } catch {
+                print("[PrismLoader] Decode error for \(name).json: \(error)")
+                return nil
+            }
+        }
     }
 
     /// Load Prisms from a directory URL

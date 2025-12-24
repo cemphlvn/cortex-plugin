@@ -2,6 +2,7 @@
   "id": "33333333-3333-3333-3333-333333333333",
   "name": "Product Review",
   "instructions": "Analyze a product review and extract structured sentiment and key points. Be balanced and objective.",
+  "exampleInput": "Great headphones, amazing sound but battery only lasts 4 hours. Not worth $300.",
   "incidentBeam": {
     "type": "string",
     "description": "A product review to analyze."

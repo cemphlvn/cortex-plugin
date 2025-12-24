@@ -15,6 +15,13 @@ struct PrismDefinition: Codable, Identifiable, Sendable, Equatable, Hashable {
     var refractedBeams: [BeamSpec]
     /// Version number (for cache invalidation)
     var version: Int
+    /// Example input for placeholder (falls back to incidentBeam.description if nil)
+    var exampleInput: String?
+
+    /// Resolved placeholder text for input field
+    var inputPlaceholder: String {
+        exampleInput ?? incidentBeam.description
+    }
 
     init(
         id: UUID = UUID(),
@@ -22,7 +29,8 @@ struct PrismDefinition: Codable, Identifiable, Sendable, Equatable, Hashable {
         instructions: String,
         incidentBeam: IncidentBeamSpec,
         refractedBeams: [BeamSpec],
-        version: Int = 1
+        version: Int = 1,
+        exampleInput: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -30,6 +38,7 @@ struct PrismDefinition: Codable, Identifiable, Sendable, Equatable, Hashable {
         self.incidentBeam = incidentBeam
         self.refractedBeams = refractedBeams
         self.version = version
+        self.exampleInput = exampleInput
     }
 }
 

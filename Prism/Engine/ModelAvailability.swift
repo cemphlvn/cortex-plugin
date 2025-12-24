@@ -3,6 +3,7 @@ import FoundationModels
 
 /// Checks and monitors Foundation Models availability
 @available(iOS 26.0, *)
+@MainActor
 @Observable
 final class ModelAvailability {
 
@@ -39,7 +40,7 @@ final class ModelAvailability {
             status = .unavailable(.modelNotReady)
 
         case .unavailable(let reason):
-            status = .unavailable(.other(reason.localizedDescription))
+            status = .unavailable(.other(String(describing: reason)))
         }
     }
 

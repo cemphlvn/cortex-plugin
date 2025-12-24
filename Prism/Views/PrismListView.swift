@@ -10,7 +10,7 @@ struct PrismListView: View {
     var body: some View {
         Group {
             if isLoading {
-                ProgressView("Loading Prisms...")
+                loadingView
             } else if let error = loadError {
                 errorView(error)
             } else if prisms.isEmpty {
@@ -19,7 +19,11 @@ struct PrismListView: View {
                 prismList
             }
         }
+        .background(PrismTheme.background)
         .navigationTitle("Prisms")
+        .toolbarBackground(PrismTheme.surface, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .task {
             await loadPrisms()
         }
@@ -28,10 +32,38 @@ struct PrismListView: View {
         }
     }
 
+    private var loadingView: some View {
+        VStack {
+            ProgressView()
+                .tint(PrismTheme.textSecondary)
+            Text("Loading Prisms...")
+                .font(.subheadline)
+                .foregroundStyle(PrismTheme.textSecondary)
+                .padding(.top, 8)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
     private var prismList: some View {
-        List(prisms) { prism in
-            NavigationLink(value: prism) {
-                PrismRowView(prism: prism)
+        GeometryReader { geometry in
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(prisms) { prism in
+                        NavigationLink(value: prism) {
+                            if #available(iOS 26.0, *) {
+                                PrismRowView(
+                                    prism: prism,
+                                    isAvailable: ModelAvailability.shared.status.isAvailable
+                                )
+                            } else {
+                                PrismRowView(prism: prism, isAvailable: false)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding()
+                .frame(width: geometry.size.width)
             }
         }
         .navigationDestination(for: PrismDefinition.self) { prism in
@@ -40,19 +72,39 @@ struct PrismListView: View {
     }
 
     private var emptyState: some View {
-        ContentUnavailableView(
-            "No Prisms",
-            systemImage: "sparkles",
-            description: Text("Create your first Prism to get started.")
-        )
+        VStack(spacing: 16) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 48))
+                .foregroundStyle(PrismTheme.textTertiary)
+
+            Text("No Prisms")
+                .font(.headline)
+                .foregroundStyle(PrismTheme.textPrimary)
+
+            Text("Create your first Prism to get started.")
+                .font(.subheadline)
+                .foregroundStyle(PrismTheme.textSecondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func errorView(_ error: Error) -> some View {
-        ContentUnavailableView(
-            "Error Loading",
-            systemImage: "exclamationmark.triangle",
-            description: Text(error.localizedDescription)
-        )
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 48))
+                .foregroundStyle(PrismTheme.error)
+
+            Text("Error Loading")
+                .font(.headline)
+                .foregroundStyle(PrismTheme.textPrimary)
+
+            Text(error.localizedDescription)
+                .font(.subheadline)
+                .foregroundStyle(PrismTheme.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
     }
 
     private func loadPrisms() async {
@@ -84,29 +136,49 @@ struct PrismListView: View {
 
 struct PrismRowView: View {
     let prism: PrismDefinition
+    var isAvailable: Bool = true
+
+    /// Beam names joined for preview (e.g., "Caption • Hashtags")
+    private var beamPreview: String {
+        prism.refractedBeams
+            .map { $0.title }
+            .joined(separator: " • ")
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(prism.name)
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(prism.name)
+                    .font(.headline)
+                    .foregroundStyle(PrismTheme.textPrimary)
+
+                Spacer()
+
+                if !isAvailable {
+                    Label("Requires AI", systemImage: "brain")
+                        .font(.caption2)
+                        .foregroundStyle(.orange)
+                        .labelStyle(.titleAndIcon)
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(PrismTheme.textTertiary)
+            }
 
             Text(prism.incidentBeam.description)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(PrismTheme.textSecondary)
                 .lineLimit(2)
 
-            HStack(spacing: 12) {
-                Label("\(prism.refractedBeams.count)", systemImage: "arrow.triangle.branch")
-                    .help("Beams")
-
-                let fieldCount = prism.refractedBeams.reduce(0) { $0 + $1.fields.count }
-                Label("\(fieldCount)", systemImage: "rectangle.3.group")
-                    .help("Fields")
-            }
-            .font(.caption)
-            .foregroundStyle(.tertiary)
+            Text(beamPreview)
+                .font(.caption)
+                .foregroundStyle(PrismTheme.textTertiary)
         }
-        .padding(.vertical, 4)
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .darkGlassCard()
+        .opacity(isAvailable ? 1.0 : 0.7)
     }
 }
 
@@ -115,4 +187,5 @@ struct PrismRowView: View {
         PrismListView()
     }
     .modelContainer(for: PrismRecord.self, inMemory: true)
+    .preferredColorScheme(.dark)
 }
