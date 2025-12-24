@@ -5,6 +5,7 @@
   "exampleInput": "Great headphones, amazing sound but battery only lasts 4 hours. Not worth $300.",
   "incidentBeam": {
     "type": "string",
+    "title": "Review Text",
     "description": "A product review to analyze."
   },
   "refractedBeams": [

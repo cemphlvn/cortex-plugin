@@ -26,6 +26,8 @@ struct BeamFieldSpec: Codable, Sendable, Equatable {
 struct IncidentBeamSpec: Codable, Sendable, Equatable {
     /// Type of input (MVP: "string")
     let type: String
+    /// Short title for the input (e.g., "Ingredients", "Meeting Notes")
+    var title: String?
     /// Description of what input is expected
     var description: String
 }

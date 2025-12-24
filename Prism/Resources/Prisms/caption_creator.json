@@ -5,6 +5,7 @@
   "exampleInput": "sunset walk after a hard week",
   "incidentBeam": {
     "type": "string",
+    "title": "Your Moment",
     "description": "A scene, thought, or moment to caption."
   },
   "refractedBeams": [

@@ -248,7 +248,7 @@ struct PrismRunView: View {
         PrismRunView(prism: PrismDefinition(
             name: "Caption Creator",
             instructions: "Create a short caption",
-            incidentBeam: IncidentBeamSpec(type: "string", description: "A scene to caption"),
+            incidentBeam: IncidentBeamSpec(type: "string", title: "Scene", description: "A scene to caption"),
             refractedBeams: [
                 BeamSpec(id: "caption", title: "Caption", fields: [
                     BeamFieldSpec(key: "text", guide: "The caption text", valueType: .string),

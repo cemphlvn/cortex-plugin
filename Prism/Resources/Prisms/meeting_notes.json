@@ -5,6 +5,7 @@
   "exampleInput": "we discussed the new pricing model. sarah will send proposal by friday. decided to launch in q2.",
   "incidentBeam": {
     "type": "string",
+    "title": "Meeting Notes",
     "description": "Raw meeting transcript or notes to structure."
   },
   "refractedBeams": [
