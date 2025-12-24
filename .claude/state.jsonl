@@ -9,3 +9,5 @@
 {"ts":"2025-12-24T15:59:08Z","type":"milestone","msg":"Archetype system: 4 types (Judge/Make/Sort/Find), card picker UI, archetype-specific PRIZMATE instructions"}
 {"ts":"2025-12-24T16:12:58Z","type":"milestone","msg":"Archetype picker redesign: single column, color-coded icons, transformation hints, help sheet, escape hatch"}
 {"ts":"2025-12-24T19:20:58Z","type":"milestone","msg":"Archetype picker polish: removed chevrons, staggered exit animation, improved card symmetry/spacing"}
+{"ts":"2025-12-24T16:41:54Z","type":"milestone","msg":"Edit/delete: swipe actions on list, edit sheet from run view, sectioned Form UI for all editable fields"}
+{"ts":"2025-12-24T16:50:03Z","type":"milestone","msg":"Edit/delete UX polish: cleaner cards (no chevrons), flow-layout beam tags, red swipe-delete, settings-style edit button, full-nav edit screen with outputs-first layout and help tooltips"}

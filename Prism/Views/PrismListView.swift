@@ -3,9 +3,15 @@ import SwiftData
 
 struct PrismListView: View {
     @Environment(\.modelContext) private var modelContext
+
+    // MARK: - State (all in one place)
     @State private var prisms: [PrismDefinition] = []
     @State private var isLoading = true
     @State private var loadError: Error?
+    @State private var selectedPrism: PrismDefinition?
+    @State private var prismToEdit: PrismDefinition?
+    @State private var showDeleteAlert = false
+    @State private var prismToDelete: PrismDefinition?
 
     var body: some View {
         Group {
@@ -21,6 +27,7 @@ struct PrismListView: View {
         }
         .background(PrismTheme.background)
         .navigationTitle("Prisms")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(PrismTheme.surface, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
@@ -29,6 +36,30 @@ struct PrismListView: View {
         }
         .refreshable {
             await loadPrisms()
+        }
+        .alert("Delete Prism?", isPresented: $showDeleteAlert) {
+            Button("Cancel", role: .cancel) {
+                prismToDelete = nil
+            }
+            Button("Delete", role: .destructive) {
+                if let prism = prismToDelete {
+                    let idToDelete = prism.id
+                    Task { await deletePrism(id: idToDelete) }
+                }
+            }
+        } message: {
+            if let prism = prismToDelete {
+                Text("\"\(prism.name)\" will be permanently deleted.")
+            }
+        }
+        // All navigation destinations at same level
+        .navigationDestination(item: $selectedPrism) { prism in
+            PrismRunView(prism: prism)
+        }
+        .navigationDestination(item: $prismToEdit) { prism in
+            PrismEditView(prism: prism) { updated in
+                Task { await savePrism(updated) }
+            }
         }
     }
 
@@ -56,27 +87,30 @@ struct PrismListView: View {
     // MARK: - Prism List
 
     private var prismList: some View {
-        ScrollView {
-            LazyVStack(spacing: 16) {
-                ForEach(prisms) { prism in
-                    NavigationLink(value: prism) {
+        List {
+            ForEach(prisms) { prism in
+                PrismCardRow(
+                    prism: prism,
+                    isAvailable: {
                         if #available(iOS 26.0, *) {
-                            PrismCard(
-                                prism: prism,
-                                isAvailable: ModelAvailability.shared.status.isAvailable
-                            )
-                        } else {
-                            PrismCard(prism: prism, isAvailable: false)
+                            return ModelAvailability.shared.status.isAvailable
                         }
+                        return false
+                    }(),
+                    onTap: { selectedPrism = prism },
+                    onEdit: { prismToEdit = prism },
+                    onDelete: {
+                        prismToDelete = prism
+                        showDeleteAlert = true
                     }
-                    .buttonStyle(.plain)
-                }
+                )
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
-            .padding()
         }
-        .navigationDestination(for: PrismDefinition.self) { prism in
-            PrismRunView(prism: prism)
-        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     }
 
     // MARK: - Empty State
@@ -193,6 +227,69 @@ struct PrismListView: View {
             }
         }
     }
+
+    // MARK: - Delete Prism
+
+    private func deletePrism(id: UUID) async {
+        do {
+            let repository = PrismRepository(modelContainer: modelContext.container)
+            try await repository.delete(id: id)
+
+            await MainActor.run {
+                prisms.removeAll { $0.id == id }
+                prismToDelete = nil
+            }
+        } catch {
+            // Silently fail for now; could show error toast
+        }
+    }
+
+    // MARK: - Save Prism
+
+    private func savePrism(_ prism: PrismDefinition) async {
+        do {
+            let repository = PrismRepository(modelContainer: modelContext.container)
+            try await repository.save(prism)
+
+            await MainActor.run {
+                if let index = prisms.firstIndex(where: { $0.id == prism.id }) {
+                    prisms[index] = prism
+                }
+                prismToEdit = nil
+            }
+        } catch {
+            // Silently fail for now
+        }
+    }
+}
+
+// MARK: - Prism Card Row (with swipe actions, no chevron)
+
+private struct PrismCardRow: View {
+    let prism: PrismDefinition
+    let isAvailable: Bool
+    let onTap: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            PrismCard(prism: prism, isAvailable: isAvailable)
+        }
+        .buttonStyle(.plain)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive, action: onDelete) {
+                Label("Delete", systemImage: "trash.fill")
+            }
+            .tint(.red)
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button(action: onEdit) {
+                Label("Settings", systemImage: "slider.horizontal.3")
+            }
+            .tint(.gray)
+        }
+    }
 }
 
 // MARK: - Prism Card
@@ -201,131 +298,168 @@ struct PrismCard: View {
     let prism: PrismDefinition
     var isAvailable: Bool = true
 
+    private let spectrum: [Color] = [.red, .orange, .yellow, .green, .cyan, .blue, .purple]
+
+    // This prism's unique colors based on its beam count
+    private var prismColors: [Color] {
+        let count = prism.refractedBeams.count
+        return (0..<count).map { spectrum[$0 % spectrum.count] }
+    }
+
+    private var accentColor: Color {
+        prismColors.first ?? .purple
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Header: Name + Status
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(prism.name)
-                        .font(.headline)
-                        .foregroundStyle(PrismTheme.textPrimary)
+            // Row 1: Title + Prism badge
+            HStack(alignment: .center, spacing: 12) {
+                Text(prism.name)
+                    .font(.headline)
+                    .foregroundStyle(PrismTheme.textPrimary)
+                    .lineLimit(2)
 
-                    if let title = prism.incidentBeam.title {
-                        HStack(spacing: 4) {
-                            Image(systemName: "arrow.right.circle.fill")
-                                .font(.caption2)
-                                .foregroundStyle(.blue.opacity(0.8))
-                            Text(title)
-                                .font(.caption)
-                                .foregroundStyle(PrismTheme.textSecondary)
-                        }
-                    }
-                }
+                Spacer(minLength: 4)
 
-                Spacer()
-
-                if !isAvailable {
-                    Label("AI Required", systemImage: "brain")
-                        .font(.caption2)
-                        .foregroundStyle(.orange)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(.orange.opacity(0.15))
-                        .clipShape(Capsule())
-                }
+                // Compact prism badge
+                PrismVizBadge(colors: prismColors)
+                    .scaleEffect(0.7)
+                    .frame(width: 50, height: 50)
             }
 
-            // Mini I → O flow
-            HStack(spacing: 8) {
-                // Input indicator
-                Circle()
-                    .fill(.blue.opacity(0.3))
-                    .frame(width: 6, height: 6)
+            // Row 2: Description (full width)
+            Text(prism.incidentBeam.description)
+                .font(.subheadline)
+                .foregroundStyle(PrismTheme.textSecondary)
+                .lineLimit(2)
 
-                // Flow line
-                Rectangle()
-                    .fill(
-                        LinearGradient(
-                            colors: [.blue.opacity(0.3), .purple.opacity(0.3)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .frame(height: 2)
-
-                // Mini prism
-                TrianglePrism()
-                    .fill(PrismTheme.glass)
-                    .frame(width: 14, height: 14)
-
-                // Output flow (rainbow)
-                Rectangle()
-                    .fill(
-                        LinearGradient(
-                            colors: [.red.opacity(0.3), .orange.opacity(0.3), .yellow.opacity(0.3), .green.opacity(0.3), .blue.opacity(0.3), .purple.opacity(0.3)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .frame(height: 2)
-
-                // Output beams
-                HStack(spacing: 3) {
-                    ForEach(prism.refractedBeams.prefix(3)) { beam in
+            // Row 3: Beam pills (flow layout, full width)
+            FlowLayout(spacing: 6) {
+                ForEach(Array(prism.refractedBeams.enumerated()), id: \.element.id) { index, beam in
+                    HStack(spacing: 4) {
                         Circle()
-                            .fill(beamColor(for: beam.id))
+                            .fill(spectrum[index % spectrum.count])
                             .frame(width: 6, height: 6)
-                    }
-                    if prism.refractedBeams.count > 3 {
-                        Text("+\(prism.refractedBeams.count - 3)")
-                            .font(.system(size: 8))
+                        Text(beam.title)
+                            .font(.caption)
                             .foregroundStyle(PrismTheme.textTertiary)
                     }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(spectrum[index % spectrum.count].opacity(0.1))
+                    .clipShape(Capsule())
                 }
-            }
-            .padding(.vertical, 4)
-
-            // Output beam titles
-            HStack(spacing: 6) {
-                ForEach(prism.refractedBeams.prefix(3)) { beam in
-                    Text(beam.title)
-                        .font(.caption2)
-                        .foregroundStyle(PrismTheme.textSecondary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(PrismTheme.glass)
-                        .clipShape(Capsule())
-                }
-                if prism.refractedBeams.count > 3 {
-                    Text("+\(prism.refractedBeams.count - 3)")
-                        .font(.caption2)
-                        .foregroundStyle(PrismTheme.textTertiary)
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(PrismTheme.textTertiary)
             }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(PrismTheme.surface)
+        .background(
+            ZStack {
+                // Base
+                PrismTheme.surface
+
+                // Subtle accent glow in corner
+                RadialGradient(
+                    colors: [accentColor.opacity(0.08), .clear],
+                    center: .topLeading,
+                    startRadius: 0,
+                    endRadius: 150
+                )
+            }
+        )
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(PrismTheme.border, lineWidth: 0.5)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            accentColor.opacity(0.3),
+                            PrismTheme.border.opacity(0.5),
+                            PrismTheme.border.opacity(0.2)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.5
+                )
         )
-        .opacity(isAvailable ? 1.0 : 0.7)
-    }
-
-    private func beamColor(for id: String) -> Color {
-        let colors: [Color] = [.red, .orange, .yellow, .green, .cyan, .blue, .purple]
-        let index = abs(id.hashValue) % colors.count
-        return colors[index].opacity(0.6)
+        .opacity(isAvailable ? 1.0 : 0.5)
     }
 }
+
+// MARK: - Prism Visualization Badge
+
+private struct PrismVizBadge: View {
+    let colors: [Color]
+
+    private var glowColor: Color {
+        colors.first ?? .purple
+    }
+
+    var body: some View {
+        ZStack {
+            // Outer glow
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            glowColor.opacity(0.2),
+                            glowColor.opacity(0.05),
+                            .clear
+                        ],
+                        center: .center,
+                        startRadius: 10,
+                        endRadius: 40
+                    )
+                )
+                .frame(width: 80, height: 80)
+
+            // Prism with gradient border matching beams
+            TrianglePrism()
+                .fill(
+                    LinearGradient(
+                        colors: [PrismTheme.glass, PrismTheme.glass.opacity(0.8)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: 32, height: 32)
+                .overlay(
+                    TrianglePrism()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: colors.isEmpty ? [.white.opacity(0.3)] : colors,
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                )
+
+            // Refracted beams - dynamic based on actual count
+            ForEach(0..<colors.count, id: \.self) { index in
+                let totalBeams = colors.count
+                let spreadAngle = min(Double(totalBeams - 1) * 12.0, 50.0)
+                let startAngle = -spreadAngle / 2
+                let angle = totalBeams == 1 ? 0 : startAngle + (spreadAngle * Double(index) / Double(totalBeams - 1))
+
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: [colors[index], colors[index].opacity(0.3)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .frame(width: 18, height: 2.5)
+                    .offset(x: 26)
+                    .rotationEffect(.degrees(angle))
+            }
+        }
+        .frame(width: 72, height: 72)
+    }
+}
+
 
 // MARK: - Preview
 

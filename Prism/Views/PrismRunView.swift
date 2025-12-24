@@ -2,12 +2,18 @@ import SwiftUI
 import FoundationModels
 
 struct PrismRunView: View {
-    let prism: PrismDefinition
+    @Environment(\.modelContext) private var modelContext
 
+    @State private var prism: PrismDefinition
     @State private var input: String = ""
     @State private var outputs: [BeamOutput] = []
     @State private var runState: RunState = .idle
     @State private var errorMessage: String?
+    @State private var navigateToEdit = false
+
+    init(prism: PrismDefinition) {
+        _prism = State(initialValue: prism)
+    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -30,6 +36,35 @@ struct PrismRunView: View {
         .toolbarBackground(PrismTheme.surface, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    navigateToEdit = true
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.body)
+                        .foregroundStyle(PrismTheme.textSecondary)
+                }
+            }
+        }
+        .navigationDestination(isPresented: $navigateToEdit) {
+            PrismEditView(prism: prism) { updated in
+                Task { await savePrism(updated) }
+            }
+        }
+    }
+
+    private func savePrism(_ updated: PrismDefinition) async {
+        do {
+            let repository = PrismRepository(modelContainer: modelContext.container)
+            try await repository.save(updated)
+
+            await MainActor.run {
+                prism = updated
+            }
+        } catch {
+            // Silently fail
+        }
     }
 
     // MARK: - Content Views
