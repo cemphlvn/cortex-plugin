@@ -13,3 +13,6 @@
 {"ts":"2025-12-24T16:50:03Z","type":"milestone","msg":"Edit/delete UX polish: cleaner cards (no chevrons), flow-layout beam tags, red swipe-delete, settings-style edit button, full-nav edit screen with outputs-first layout and help tooltips"}
 {"ts":"2025-12-24T21:57:12Z","type":"milestone","msg":"Onboarding: 4-step WOW experience (void→demo→reveal→library), Magician archetype, theatrical animations, spectrum burst effects"}
 {"ts":"2025-12-24T22:06:21Z","type":"milestone","msg":"Onboarding Showcase step: 5 diverse examples + 3 value props, pattern cascade technique, pre-answered FAQs"}
+{"ts":"2025-12-24T22:16:41Z","type":"milestone","msg":"Onboarding polish: PRISM brand reveal, relatable demo input (stuck/procrastination), numbered showcase (PRISM #1-5)"}
+{"ts":"2025-12-24T22:21:00Z","type":"milestone","msg":"Demo reimagined: name input → acrostic poem generator, real personalized output, shareable gift moment"}
+{"ts":"2025-12-24T22:29:16Z","type":"milestone","msg":"Onboarding flow enhanced: I→PRISM→O concept step, tap-based archetypes with transform animations, real AI poem generation with fallback"}

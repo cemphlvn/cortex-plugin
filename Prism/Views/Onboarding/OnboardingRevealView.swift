@@ -1,338 +1,410 @@
 import SwiftUI
 
-/// Step 3: The Reveal
-/// Quick visual breakdown of concepts + archetype gallery
+/// Step 4: The Reveal - Archetype showcase with tap-based transformations
+/// Shows each archetype with an input→output transformation animation
 struct OnboardingRevealView: View {
     var onComplete: () -> Void
 
-    @State private var showDiagram = false
+    @State private var currentArchetypeIndex = 0
+    @State private var phase: TransformPhase = .idle
+    @State private var showHeader = false
+    @State private var showArchetype = false
     @State private var showInput = false
     @State private var showPrism = false
     @State private var showBeams = false
-    @State private var showLabels = false
-    @State private var showArchetypes = false
-    @State private var archetypeVisibility: [Bool] = [false, false, false, false]
-    @State private var showTagline = false
+    @State private var showNav = false
     @State private var showContinue = false
+
+    private let archetypes = PrismArchetype.allCases
+
+    private enum TransformPhase {
+        case idle
+        case inputEntering
+        case transforming
+        case outputRevealing
+        case complete
+    }
+
+    // Example transformations for each archetype
+    private let examples: [PrismArchetype: (input: String, outputs: [(String, String)])] = [
+        .analyzer: (
+            input: "Should I take the job?",
+            outputs: [("Verdict", "Consider it"), ("Pros", "Better pay, growth"), ("Cons", "Long commute")]
+        ),
+        .generator: (
+            input: "sunset with friends",
+            outputs: [("Caption", "Golden hour, golden memories"), ("Tags", "#sunset #friends")]
+        ),
+        .transformer: (
+            input: "we discussed Q3 launch...",
+            outputs: [("Summary", "Q3 launch planning"), ("Action Items", "Review timeline"), ("Owners", "Sarah, John")]
+        ),
+        .extractor: (
+            input: "Meet Tuesday, deadline March 15",
+            outputs: [("Dates", "Tuesday, March 15"), ("Events", "Meeting, Deadline")]
+        )
+    ]
+
+    private var currentArchetype: PrismArchetype {
+        archetypes[currentArchetypeIndex]
+    }
+
+    private var currentExample: (input: String, outputs: [(String, String)]) {
+        examples[currentArchetype] ?? (input: "Input", outputs: [("Output", "Result")])
+    }
 
     var body: some View {
         ZStack {
-            // Background
             Color.black.ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 40) {
-                    Spacer().frame(height: 60)
+            VStack(spacing: 24) {
+                Spacer().frame(height: 60)
 
-                    // Concept diagram
-                    conceptDiagram
-                        .padding(.horizontal, 20)
+                // Header
+                VStack(spacing: 8) {
+                    Text("FOUR ARCHETYPES")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(PrismTheme.textTertiary)
+                        .tracking(3)
 
-                    // Archetype gallery
-                    if showArchetypes {
-                        archetypeGallery
-                            .padding(.horizontal, 20)
-                    }
-
-                    // Tagline
-                    if showTagline {
-                        VStack(spacing: 8) {
-                            Text("Different Prisms.")
-                                .font(.system(size: 20, weight: .light))
-                                .foregroundStyle(PrismTheme.textSecondary)
-
-                            Text("Different transformations.")
-                                .font(.system(size: 20, weight: .light))
-                                .foregroundStyle(PrismTheme.textSecondary)
-                        }
-                        .multilineTextAlignment(.center)
-                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
-                    }
-
-                    // Continue button
-                    if showContinue {
-                        Button(action: onComplete) {
-                            HStack(spacing: 8) {
-                                Text("See Your Toolkit")
-                                Image(systemName: "arrow.right")
-                            }
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 32)
-                            .padding(.vertical, 14)
-                            .background(
-                                Capsule()
-                                    .fill(PrismTheme.glass)
-                                    .overlay(
-                                        Capsule()
-                                            .strokeBorder(
-                                                AngularGradient(
-                                                    gradient: Gradient(colors: [
-                                                        .red, .orange, .yellow, .green, .cyan, .blue, .purple, .red
-                                                    ]),
-                                                    center: .center
-                                                ),
-                                                lineWidth: 1.5
-                                            )
-                                    )
-                            )
-                        }
-                        .padding(.top, 20)
-                        .transition(.opacity.combined(with: .scale(scale: 0.9)))
-                    }
-
-                    Spacer().frame(height: 60)
+                    Text("Tap to see each transformation")
+                        .font(.system(size: 14))
+                        .foregroundStyle(PrismTheme.textTertiary)
                 }
+                .opacity(showHeader ? 1 : 0)
+
+                // Archetype selector (dots/icons)
+                archetypeSelector
+                    .opacity(showNav ? 1 : 0)
+
+                Spacer()
+
+                // Main transformation area
+                transformationView
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 24)
+
+                Spacer()
+
+                // Navigation hint
+                if showNav && !showContinue {
+                    Text("Tap anywhere to continue")
+                        .font(.system(size: 13))
+                        .foregroundStyle(PrismTheme.textTertiary)
+                        .opacity(phase == .complete ? 1 : 0.5)
+                }
+
+                // Continue button (after seeing all)
+                if showContinue {
+                    Button(action: onComplete) {
+                        HStack(spacing: 8) {
+                            Text("See Your Toolkit")
+                            Image(systemName: "arrow.right")
+                        }
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 32)
+                        .padding(.vertical, 14)
+                        .background(
+                            Capsule()
+                                .fill(PrismTheme.glass)
+                                .overlay(
+                                    Capsule()
+                                        .strokeBorder(
+                                            AngularGradient(
+                                                gradient: Gradient(colors: [
+                                                    .red, .orange, .yellow, .green, .cyan, .blue, .purple, .red
+                                                ]),
+                                                center: .center
+                                            ),
+                                            lineWidth: 1.5
+                                        )
+                                )
+                        )
+                    }
+                    .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                }
+
+                Spacer().frame(height: 50)
             }
-            .scrollIndicators(.hidden)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            handleTap()
         }
         .onAppear {
-            animateSequence()
+            startSequence()
         }
     }
 
-    // MARK: - Concept Diagram
+    // MARK: - Archetype Selector
 
-    private var conceptDiagram: some View {
-        VStack(spacing: 24) {
-            // Title
-            if showDiagram {
-                Text("THE TRANSFORMATION")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(PrismTheme.textTertiary)
-                    .tracking(3)
-                    .transition(.opacity)
-            }
-
-            // Diagram
-            HStack(spacing: 16) {
-                // Input
-                VStack(spacing: 8) {
+    private var archetypeSelector: some View {
+        HStack(spacing: 16) {
+            ForEach(Array(archetypes.enumerated()), id: \.element.id) { index, archetype in
+                VStack(spacing: 6) {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(PrismTheme.surface)
-                            .frame(width: 60, height: 44)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .strokeBorder(PrismTheme.border, lineWidth: 0.5)
-                            )
+                        Circle()
+                            .fill(index == currentArchetypeIndex ? archetype.accentColor.opacity(0.2) : PrismTheme.surface)
+                            .frame(width: 44, height: 44)
 
-                        Image(systemName: "text.alignleft")
+                        Image(systemName: archetype.icon)
                             .font(.system(size: 18))
-                            .foregroundStyle(PrismTheme.textSecondary)
+                            .foregroundStyle(index == currentArchetypeIndex ? archetype.accentColor : PrismTheme.textTertiary)
                     }
-                    .opacity(showInput ? 1 : 0)
-                    .scaleEffect(showInput ? 1 : 0.5)
 
-                    if showLabels {
-                        Text("Your input")
-                            .font(.caption)
-                            .foregroundStyle(PrismTheme.textTertiary)
-                            .transition(.opacity)
-                    }
+                    Text(archetype.actionVerb)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(index == currentArchetypeIndex ? archetype.accentColor : PrismTheme.textTertiary)
                 }
-
-                // Arrow 1
-                if showPrism {
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 16, weight: .light))
-                        .foregroundStyle(PrismTheme.textTertiary)
-                        .transition(.opacity.combined(with: .scale))
-                }
-
-                // Prism
-                VStack(spacing: 8) {
-                    ZStack {
-                        TrianglePrism()
-                            .fill(PrismTheme.glass)
-                            .frame(width: 56, height: 56)
-                            .overlay(
-                                TrianglePrism()
-                                    .strokeBorder(PrismTheme.border, lineWidth: 1)
-                            )
-
-                        if showPrism {
-                            TriangleSpectralRing(intensity: 0.6, lineWidth: 2)
-                                .frame(width: 62, height: 62)
-                        }
-                    }
-                    .opacity(showPrism ? 1 : 0)
-                    .scaleEffect(showPrism ? 1 : 0.5)
-
-                    if showLabels {
-                        Text("Prism")
-                            .font(.caption)
-                            .foregroundStyle(PrismTheme.textTertiary)
-                            .transition(.opacity)
-                    }
-                }
-
-                // Arrow 2
-                if showBeams {
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 16, weight: .light))
-                        .foregroundStyle(PrismTheme.textTertiary)
-                        .transition(.opacity.combined(with: .scale))
-                }
-
-                // Beams
-                VStack(spacing: 8) {
-                    VStack(spacing: 4) {
-                        ForEach(0..<3, id: \.self) { index in
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(beamColor(for: index))
-                                .frame(width: 50, height: 12)
-                                .opacity(showBeams ? 1 : 0)
-                                .scaleEffect(x: showBeams ? 1 : 0.3, y: 1, anchor: .leading)
-                                .animation(
-                                    .spring(response: 0.4, dampingFraction: 0.7)
-                                        .delay(Double(index) * 0.1),
-                                    value: showBeams
-                                )
-                        }
-                    }
-
-                    if showLabels {
-                        Text("Beams")
-                            .font(.caption)
-                            .foregroundStyle(PrismTheme.textTertiary)
-                            .transition(.opacity)
-                    }
-                }
+                .opacity(index <= currentArchetypeIndex ? 1 : 0.4)
+                .animation(.easeOut(duration: 0.3), value: currentArchetypeIndex)
             }
-            .animation(.spring(response: 0.5, dampingFraction: 0.8), value: showInput)
-            .animation(.spring(response: 0.5, dampingFraction: 0.8), value: showPrism)
         }
-        .padding(.vertical, 24)
-        .padding(.horizontal, 20)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(PrismTheme.glass.opacity(0.5))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .strokeBorder(PrismTheme.border, lineWidth: 0.5)
-                )
+    }
+
+    // MARK: - Transformation View
+
+    private var transformationView: some View {
+        VStack(spacing: 32) {
+            // Archetype title
+            VStack(spacing: 8) {
+                Text(currentArchetype.displayName)
+                    .font(.system(size: 28, weight: .light))
+                    .foregroundStyle(.white)
+
+                Text(currentArchetype.transformationHint)
+                    .font(.system(size: 14))
+                    .foregroundStyle(currentArchetype.accentColor)
+            }
+            .opacity(showArchetype ? 1 : 0)
+            .offset(y: showArchetype ? 0 : 10)
+
+            // Transformation diagram
+            VStack(spacing: 20) {
+                // Input card
+                inputCard
+                    .opacity(showInput ? 1 : 0)
+                    .offset(y: showInput ? 0 : 15)
+                    .scaleEffect(phase == .transforming ? 0.95 : 1)
+
+                // Prism indicator
+                prismIndicator
+                    .opacity(showPrism ? 1 : 0)
+                    .scaleEffect(showPrism ? 1 : 0.8)
+
+                // Output beams
+                outputBeams
+                    .opacity(showBeams ? 1 : 0)
+            }
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: phase)
+        }
+    }
+
+    private var inputCard: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "text.alignleft")
+                .font(.system(size: 14))
+                .foregroundStyle(PrismTheme.textTertiary)
+
+            Text(currentExample.input)
+                .font(.system(size: 14))
+                .foregroundStyle(PrismTheme.textSecondary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PrismTheme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(PrismTheme.border, lineWidth: 0.5)
         )
     }
 
-    private func beamColor(for index: Int) -> Color {
-        switch index {
-        case 0: return .cyan.opacity(0.6)
-        case 1: return .purple.opacity(0.6)
-        default: return .orange.opacity(0.6)
-        }
-    }
+    private var prismIndicator: some View {
+        HStack(spacing: 12) {
+            Rectangle()
+                .fill(phase == .transforming || phase == .outputRevealing || phase == .complete
+                      ? currentArchetype.accentColor.opacity(0.5)
+                      : PrismTheme.border)
+                .frame(width: 30, height: 1)
+                .animation(.easeOut(duration: 0.3), value: phase)
 
-    // MARK: - Archetype Gallery
-
-    private var archetypeGallery: some View {
-        VStack(spacing: 20) {
-            Text("FOUR ARCHETYPES")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(PrismTheme.textTertiary)
-                .tracking(3)
-
-            HStack(spacing: 20) {
-                ForEach(Array(PrismArchetype.allCases.enumerated()), id: \.element.id) { index, archetype in
-                    archetypeCard(archetype, index: index)
+            ZStack {
+                if phase == .transforming || phase == .outputRevealing || phase == .complete {
+                    TriangleSpectralRing(intensity: phase == .complete ? 0.9 : 0.6, lineWidth: 2)
+                        .frame(width: 48, height: 48)
                 }
+
+                TrianglePrism()
+                    .fill(PrismTheme.glass)
+                    .frame(width: 36, height: 36)
+                    .overlay(
+                        TrianglePrism()
+                            .strokeBorder(currentArchetype.accentColor.opacity(0.5), lineWidth: 1)
+                    )
             }
+
+            Rectangle()
+                .fill(phase == .outputRevealing || phase == .complete
+                      ? currentArchetype.accentColor.opacity(0.5)
+                      : PrismTheme.border)
+                .frame(width: 30, height: 1)
+                .animation(.easeOut(duration: 0.3).delay(0.1), value: phase)
         }
-        .transition(.opacity.combined(with: .move(edge: .bottom)))
     }
 
-    private func archetypeCard(_ archetype: PrismArchetype, index: Int) -> some View {
-        VStack(spacing: 10) {
-            ArchetypeIconView(
-                archetype: archetype,
-                size: 52,
-                showGlow: archetypeVisibility[index]
-            )
+    private var outputBeams: some View {
+        VStack(spacing: 8) {
+            ForEach(Array(currentExample.outputs.enumerated()), id: \.offset) { index, output in
+                HStack(spacing: 10) {
+                    Circle()
+                        .fill(currentArchetype.accentColor)
+                        .frame(width: 6, height: 6)
 
-            VStack(spacing: 4) {
-                Text(archetype.actionVerb)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(archetype.accentColor)
+                    Text(output.0)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(currentArchetype.accentColor)
+                        .frame(width: 80, alignment: .leading)
 
-                Text(archetype.transformationHint)
-                    .font(.system(size: 10))
-                    .foregroundStyle(PrismTheme.textTertiary)
+                    Text(output.1)
+                        .font(.system(size: 13))
+                        .foregroundStyle(PrismTheme.textPrimary)
+                        .lineLimit(1)
+
+                    Spacer()
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(PrismTheme.glass)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .strokeBorder(currentArchetype.accentColor.opacity(0.3), lineWidth: 0.5)
+                )
+                .opacity(showBeams ? 1 : 0)
+                .offset(y: showBeams ? 0 : 10)
+                .animation(
+                    .spring(response: 0.4, dampingFraction: 0.8)
+                        .delay(Double(index) * 0.1),
+                    value: showBeams
+                )
             }
         }
-        .opacity(archetypeVisibility[index] ? 1 : 0)
-        .scaleEffect(archetypeVisibility[index] ? 1 : 0.7)
     }
 
-    // MARK: - Animation Sequence
+    // MARK: - Actions
 
-    private func animateSequence() {
+    private func handleTap() {
+        guard showNav else { return }
+
+        if phase != .complete {
+            // Speed up current animation
+            return
+        }
+
+        // Move to next archetype or show continue
+        if currentArchetypeIndex < archetypes.count - 1 {
+            moveToNextArchetype()
+        } else if !showContinue {
+            withAnimation(.easeOut(duration: 0.4)) {
+                showContinue = true
+            }
+        }
+    }
+
+    private func moveToNextArchetype() {
+        // Reset state
+        withAnimation(.easeOut(duration: 0.2)) {
+            showInput = false
+            showPrism = false
+            showBeams = false
+            showArchetype = false
+            phase = .idle
+        }
+
+        // Change archetype
         Task {
-            // Show diagram title
+            try? await Task.sleep(for: .seconds(0.3))
+            await MainActor.run {
+                currentArchetypeIndex += 1
+                runTransformation()
+            }
+        }
+    }
+
+    private func startSequence() {
+        Task {
+            // Show header
             try? await Task.sleep(for: .seconds(0.3))
             await MainActor.run {
                 withAnimation(.easeOut(duration: 0.4)) {
-                    showDiagram = true
+                    showHeader = true
                 }
             }
 
-            // Input element
+            // Show nav
+            try? await Task.sleep(for: .seconds(0.4))
+            await MainActor.run {
+                withAnimation(.easeOut(duration: 0.4)) {
+                    showNav = true
+                }
+            }
+
+            // Run first transformation
             try? await Task.sleep(for: .seconds(0.3))
             await MainActor.run {
-                showInput = true
+                runTransformation()
             }
+        }
+    }
 
-            // Prism element
-            try? await Task.sleep(for: .seconds(0.4))
+    private func runTransformation() {
+        Task {
+            // Show archetype name
             await MainActor.run {
-                showPrism = true
-            }
-
-            // Beams
-            try? await Task.sleep(for: .seconds(0.4))
-            await MainActor.run {
-                showBeams = true
-            }
-
-            // Labels
-            try? await Task.sleep(for: .seconds(0.4))
-            await MainActor.run {
-                withAnimation(.easeOut(duration: 0.3)) {
-                    showLabels = true
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    showArchetype = true
+                    phase = .idle
                 }
             }
 
-            // Archetype gallery
+            // Show input
+            try? await Task.sleep(for: .seconds(0.4))
+            await MainActor.run {
+                phase = .inputEntering
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    showInput = true
+                }
+                PrismHaptics.tick()
+            }
+
+            // Show prism (transforming)
+            try? await Task.sleep(for: .seconds(0.5))
+            await MainActor.run {
+                phase = .transforming
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                    showPrism = true
+                }
+                PrismHaptics.buttonPress()
+            }
+
+            // Show outputs
             try? await Task.sleep(for: .seconds(0.6))
             await MainActor.run {
-                withAnimation(.easeOut(duration: 0.4)) {
-                    showArchetypes = true
+                phase = .outputRevealing
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    showBeams = true
                 }
+                PrismHaptics.success()
             }
 
-            // Individual archetypes with stagger
-            for i in 0..<4 {
-                try? await Task.sleep(for: .seconds(0.15))
-                await MainActor.run {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                        archetypeVisibility[i] = true
-                    }
-                }
-            }
-
-            // Tagline
-            try? await Task.sleep(for: .seconds(0.5))
+            // Mark complete
+            try? await Task.sleep(for: .seconds(0.4))
             await MainActor.run {
-                withAnimation(.easeOut(duration: 0.4)) {
-                    showTagline = true
-                }
-            }
-
-            // Continue button
-            try? await Task.sleep(for: .seconds(0.5))
-            await MainActor.run {
-                withAnimation(.easeOut(duration: 0.4)) {
-                    showContinue = true
-                }
+                phase = .complete
             }
         }
     }

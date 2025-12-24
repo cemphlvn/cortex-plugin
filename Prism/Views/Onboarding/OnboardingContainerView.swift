@@ -10,8 +10,8 @@ struct OnboardingContainerView: View {
 
     enum OnboardingStep: Int, CaseIterable {
         case void = 0      // The Awakening
-        case demo = 1      // The Demonstration
-        case showcase = 2  // The Showcase (diverse examples)
+        case concept = 1   // I → PRISM → O explanation
+        case demo = 2      // The Demonstration
         case reveal = 3    // The Reveal (archetypes)
         case library = 4   // The Library
     }
@@ -26,16 +26,16 @@ struct OnboardingContainerView: View {
                 switch currentStep {
                 case .void:
                     OnboardingVoidView {
+                        transitionTo(.concept)
+                    }
+
+                case .concept:
+                    OnboardingConceptView {
                         transitionTo(.demo)
                     }
 
                 case .demo:
                     OnboardingDemoView {
-                        transitionTo(.showcase)
-                    }
-
-                case .showcase:
-                    OnboardingShowcaseView {
                         transitionTo(.reveal)
                     }
 

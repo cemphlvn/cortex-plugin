@@ -9,6 +9,7 @@ struct OnboardingVoidView: View {
     @State private var phase: AwakeningPhase = .void
     @State private var textPhases: [CinematicText.TextPhase] = Array(repeating: .hidden, count: 5)
     @State private var burstPhase: SpectrumBurst.BurstPhase = .waiting
+    @State private var showBrandReveal = false
     @State private var showContinue = false
     @State private var showSkip = false
 
@@ -54,7 +55,7 @@ struct OnboardingVoidView: View {
                 }
                 .frame(height: 200)
 
-                // Text area
+                // Text area (before burst)
                 VStack(spacing: 16) {
                     // Text 0: "Chaos."
                     CinematicText(
@@ -96,6 +97,23 @@ struct OnboardingVoidView: View {
                     .padding(.top, 20)
                 }
                 .frame(height: 120)
+                .opacity(showBrandReveal ? 0 : 1)
+
+                // Brand reveal (after burst)
+                if showBrandReveal {
+                    VStack(spacing: 12) {
+                        Text("PRISM")
+                            .font(.system(size: 48, weight: .thin))
+                            .tracking(16)
+                            .foregroundStyle(.white)
+
+                        Text("Focus your thoughts")
+                            .font(.system(size: 15, weight: .regular))
+                            .foregroundStyle(PrismTheme.textSecondary)
+                            .tracking(2)
+                    }
+                    .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                }
 
                 Spacer()
 
@@ -231,8 +249,16 @@ struct OnboardingVoidView: View {
                 burstPhase = .exploding
             }
 
-            // Wait for burst to complete, then show continue
-            try? await Task.sleep(for: .seconds(1.5))
+            // Wait for burst to complete, then show brand reveal
+            try? await Task.sleep(for: .seconds(1.2))
+            await MainActor.run {
+                withAnimation(.easeOut(duration: 0.6)) {
+                    showBrandReveal = true
+                }
+            }
+
+            // Then show continue
+            try? await Task.sleep(for: .seconds(1.0))
             await MainActor.run {
                 withAnimation(.easeOut(duration: 0.4)) {
                     showContinue = true
