@@ -13,10 +13,12 @@
 		0D377D4AFA52694B383F27B6 /* PrismButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1D41F0DFD9DA1D9843B7671 /* PrismButton.swift */; };
 		0F394C6FFC1CE2D9153E6706 /* BeamValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356330BF7FD752CCE7DBBF65 /* BeamValue.swift */; };
 		123F621FBE600F4F606E8FB7 /* BeamOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035CB21A771AFF1D85249788 /* BeamOutput.swift */; };
+		19BD1D2AE0059079E5D68F16 /* ArchetypeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FAB00A7BFB9B7A6D0B3C53 /* ArchetypeSpec.swift */; };
 		1A0DDCC0166FA859C548696B /* PrismRunView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE45F7B71A9B73C08728D4A /* PrismRunView.swift */; };
 		2068E29451F82E8DD5AFA620 /* PrismTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31F020D16EC09F9C2017682 /* PrismTheme.swift */; };
 		26CD6D1D0908078DEA89EB03 /* FoundationModels.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9869903CE1248290718B2F6 /* FoundationModels.framework */; };
 		46AECFEE2857C0A90D58B07E /* PrismExecutableCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A15C998FA6AEE3CE7A128F6 /* PrismExecutableCache.swift */; };
+		5041D68ABC20CF45F18F667C /* ArchetypePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48DF1A015DD752B947E565E1 /* ArchetypePickerView.swift */; };
 		53663DA182872DAD28F15CE4 /* PrismEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E12C83D00CC6F597750FB1A /* PrismEngine.swift */; };
 		563F2FEDBE9F30A693F16170 /* meeting_notes.json in Resources */ = {isa = PBXBuildFile; fileRef = 9D6CCE7D29D598945C19012B /* meeting_notes.json */; };
 		632379F6DA3D0E11711871E1 /* PrismApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0FE572AD856E190D4583B1 /* PrismApp.swift */; };
@@ -54,10 +56,12 @@
 		356330BF7FD752CCE7DBBF65 /* BeamValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamValue.swift; sourceTree = "<group>"; };
 		3CBECDC40DB2F7D8BF88B956 /* Prism.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Prism.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		41CEC32FDDB6F0D060420924 /* GoldenPrismAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoldenPrismAgent.swift; sourceTree = "<group>"; };
+		48DF1A015DD752B947E565E1 /* ArchetypePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchetypePickerView.swift; sourceTree = "<group>"; };
 		5333705C14F91A8B48D971C9 /* ChatPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPanel.swift; sourceTree = "<group>"; };
 		6379A5E33EE2B3422E67384F /* BeamOutputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamOutputView.swift; sourceTree = "<group>"; };
 		66DCFCA6E72A0E3ADF6BE06B /* PrismDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismDefinition.swift; sourceTree = "<group>"; };
 		72B3906596C5ADF6838E4A6D /* AtelierPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtelierPanel.swift; sourceTree = "<group>"; };
+		72FAB00A7BFB9B7A6D0B3C53 /* ArchetypeSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchetypeSpec.swift; sourceTree = "<group>"; };
 		7FE37F4E1BC11962A2DF8B67 /* BeamSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamSpec.swift; sourceTree = "<group>"; };
 		8D63F3CE41E5E4595017F9E6 /* PrismSchemaCompiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismSchemaCompiler.swift; sourceTree = "<group>"; };
 		96445DBDA1C80D713276E8E5 /* CreatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatorViewModel.swift; sourceTree = "<group>"; };
@@ -129,6 +133,8 @@
 		838754D89151EAD6BFE4C959 /* Creator */ = {
 			isa = PBXGroup;
 			children = (
+				48DF1A015DD752B947E565E1 /* ArchetypePickerView.swift */,
+				72FAB00A7BFB9B7A6D0B3C53 /* ArchetypeSpec.swift */,
 				72B3906596C5ADF6838E4A6D /* AtelierPanel.swift */,
 				5333705C14F91A8B48D971C9 /* ChatPanel.swift */,
 				DE786A9540D7E338EE20A141 /* CreatorView.swift */,
@@ -289,6 +295,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5041D68ABC20CF45F18F667C /* ArchetypePickerView.swift in Sources */,
+				19BD1D2AE0059079E5D68F16 /* ArchetypeSpec.swift in Sources */,
 				AE15ED0A9558F3DC628E8F47 /* AtelierPanel.swift in Sources */,
 				123F621FBE600F4F606E8FB7 /* BeamOutput.swift in Sources */,
 				BD23340731BAEDA615135997 /* BeamOutputView.swift in Sources */,

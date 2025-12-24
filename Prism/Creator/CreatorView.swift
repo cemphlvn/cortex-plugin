@@ -8,11 +8,89 @@ struct CreatorView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var showPrizmateSuccess = false
     @State private var createdPrism: PrismDefinition?
+    @State private var archetypeSelected = false
+    @State private var showHelp = false
 
     // Callback when prism is created (for navigation)
     var onPrismCreated: ((PrismDefinition) -> Void)?
 
     var body: some View {
+        ZStack {
+            if !archetypeSelected {
+                // Step 1: Pick archetype
+                ArchetypePickerView(
+                    onSelect: { archetype in
+                        vm.archetype = archetype
+                        // Picker handles its own exit animation
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            archetypeSelected = true
+                        }
+                    },
+                    onHelp: { showHelp = true },
+                    onNotSure: {
+                        vm.archetype = .transformer
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            archetypeSelected = true
+                        }
+                    }
+                )
+                .zIndex(1)
+                .transition(.opacity)
+            }
+
+            if archetypeSelected {
+                // Step 2: Chat flow
+                chatFlow
+                    .zIndex(2)
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity.combined(with: .offset(x: -50)).animation(.easeOut(duration: 0.3)),
+                            removal: .opacity.combined(with: .offset(x: -50))
+                        )
+                    )
+            }
+        }
+        .background(PrismTheme.background)
+        .navigationTitle(archetypeSelected ? vm.archetype.actionVerb : "Creator")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if archetypeSelected {
+                    Button("Reset") {
+                        withAnimation(.smooth(duration: 0.35)) {
+                            vm.reset()
+                            archetypeSelected = false
+                        }
+                    }
+                    .foregroundStyle(PrismTheme.textSecondary)
+                }
+            }
+        }
+        .sheet(isPresented: $showHelp) {
+            ArchetypeHelpSheet()
+        }
+        .alert("Prism Created!", isPresented: $showPrizmateSuccess) {
+            Button("View Prism") {
+                if let prism = createdPrism {
+                    onPrismCreated?(prism)
+                }
+            }
+            Button("Create Another") {
+                withAnimation(.smooth(duration: 0.35)) {
+                    vm.reset()
+                    archetypeSelected = false
+                }
+            }
+        } message: {
+            if let prism = createdPrism {
+                Text("\"\(prism.name)\" has been saved to your Prisms.")
+            }
+        }
+    }
+
+    // MARK: - Chat Flow
+
+    private var chatFlow: some View {
         VStack(spacing: 0) {
             // Atelier Panel (appears after first message)
             if !vm.messages.isEmpty {
@@ -35,38 +113,7 @@ struct CreatorView: View {
                 onSend: { vm.sendUser(vm.input) }
             )
         }
-        .background(PrismTheme.background)
         .animation(.spring(response: 0.4, dampingFraction: 0.85), value: vm.messages.count)
-        .navigationTitle("Creator")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                if !vm.messages.isEmpty {
-                    Button("Reset") {
-                        withAnimation {
-                            vm.reset()
-                        }
-                    }
-                    .foregroundStyle(PrismTheme.textSecondary)
-                }
-            }
-        }
-        .alert("Prism Created!", isPresented: $showPrizmateSuccess) {
-            Button("View Prism") {
-                if let prism = createdPrism {
-                    onPrismCreated?(prism)
-                }
-            }
-            Button("Create Another") {
-                withAnimation {
-                    vm.reset()
-                }
-            }
-        } message: {
-            if let prism = createdPrism {
-                Text("\"\(prism.name)\" has been saved to your Prisms.")
-            }
-        }
     }
 
     private func prizmate() {

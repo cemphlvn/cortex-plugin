@@ -67,16 +67,6 @@ enum BlueprintValueType: String, Sendable {
     case stringArray
 }
 
-// MARK: - Archetype Hint (Future-Ready)
-
-enum PrismArchetype: String, Sendable, CaseIterable {
-    case general       // Default for MVP
-    case analyzer      // Break down input into parts
-    case generator     // Create content from input
-    case transformer   // Convert input format
-    case extractor     // Pull specific info from input
-}
-
 // MARK: - Blueprint to PrismDefinition Mapping
 
 extension PrismBlueprintV1 {

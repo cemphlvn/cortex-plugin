@@ -108,8 +108,8 @@ final class CreatorViewModel: ObservableObject {
     @Published var draftDiff: DraftDiff = DraftDiff()
     @Published var compileStatus: CompileStatus = .idle
 
-    // Archetype hint (future-ready, not exposed in UI for MVP)
-    var archetype: PrismArchetype = .general
+    // Selected archetype - determines PRIZMATE compilation strategy
+    @Published var archetype: PrismArchetype = .transformer
 
     enum CompileStatus: Equatable {
         case idle
@@ -121,7 +121,6 @@ final class CreatorViewModel: ObservableObject {
     // MARK: - Private
 
     private let golden = GoldenPrismAgent()
-    private let prizmate = PrizmateCompiler()
     private var compileTask: Task<Void, Never>?
 
     // Debounce duration
@@ -173,10 +172,12 @@ final class CreatorViewModel: ObservableObject {
             }
 
             let currentMessages = await MainActor.run { self.messages }
+            let currentArchetype = await MainActor.run { self.archetype }
             let transcript = makeTranscript(currentMessages)
 
             do {
-                let blueprint = try await self.prizmate.compileDraft(from: transcript)
+                let prizmate = PrizmateCompiler(archetype: currentArchetype)
+                let blueprint = try await prizmate.compileDraft(from: transcript)
 
                 if Task.isCancelled { return }
 

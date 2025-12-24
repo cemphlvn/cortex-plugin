@@ -14,8 +14,8 @@ struct PrismApp: App {
 // MARK: - Tab Selection
 
 enum AppTab: String, CaseIterable {
-    case prisms
     case creator
+    case prisms
 }
 
 // MARK: - Content View
@@ -27,15 +27,6 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            // Prisms Tab
-            NavigationStack(path: $prismPath) {
-                PrismListView()
-            }
-            .tabItem {
-                Label("Prisms", systemImage: "triangle.fill")
-            }
-            .tag(AppTab.prisms)
-
             // Creator Tab
             NavigationStack {
                 CreatorView(onPrismCreated: { prism in
@@ -48,6 +39,15 @@ struct ContentView: View {
                 Label("Creator", systemImage: "sparkles")
             }
             .tag(AppTab.creator)
+
+            // Prisms Tab
+            NavigationStack(path: $prismPath) {
+                PrismListView()
+            }
+            .tabItem {
+                Label("Prisms", systemImage: "triangle.fill")
+            }
+            .tag(AppTab.prisms)
         }
         .tint(.white)
         .onChange(of: selectedTab) { _, newTab in

@@ -3,23 +3,19 @@ import FoundationModels
 
 // MARK: - PRIZMATE Compiler
 // Converts chat transcript into PrismBlueprintV1 using guided generation
+// Uses archetype-specific instructions for optimized output structure
 
 struct PrizmateCompiler: Sendable {
-    private let session: LanguageModelSession
+    let archetype: PrismArchetype
 
-    init() {
-        self.session = LanguageModelSession(instructions: Self.instructions)
+    init(archetype: PrismArchetype = .transformer) {
+        self.archetype = archetype
     }
 
-    static let instructions = """
-        You are an agent that converts conversations into Prisms. Prism can be anything that helps user automate a micro-task. Prisms do that by having a clear and dynamic input type and structured output beams. Each beam is basically an output structure. Prism encapsulates this.
-        We prewarmed the user to articulate what kind of a Prism they want and what might they use it for, what input variables they could have, and what are the output structures would be desirable to them.
-        You are given that conversation transcript with the user. Create the Prism that would solve their issues and can become a repetitive artifact they can use again and again.
-        """
-
     /// Compile transcript into blueprint
-    /// Uses guided generation for reliable structure
+    /// Uses guided generation with archetype-specific instructions
     func compileDraft(from transcript: String) async throws -> PrismBlueprintV1 {
+        let session = LanguageModelSession(instructions: archetype.prizmateInstructions)
         let response = try await session.respond(
             to: transcript,
             generating: PrismBlueprintV1.self,
