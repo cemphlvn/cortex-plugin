@@ -5,6 +5,7 @@ import FoundationModels
 // Conversational AI that helps users articulate their Prism
 // DOES NOT produce PrismDefinition - that's PRIZMATE's job
 
+@available(iOS 26.0, *)
 struct GoldenPrismAgent: Sendable {
     private let session: LanguageModelSession
 
@@ -19,11 +20,52 @@ struct GoldenPrismAgent: Sendable {
         You can sacrifice grammar for concision. Keep responses 5-15 words long. In your responses remain context-expanding and open-ended. Make it easy for the user to provide more information.
 
         Keep the language from user's perspective:
-        - Use 
+        - Use
         """
 
+    /// Reply to user message with error handling
+    /// - Parameter userText: User's input message
+    /// - Returns: Agent's response
+    /// - Throws: PrismError with user-friendly messages
     func reply(to userText: String) async throws -> String {
-        let response = try await session.respond(to: userText)
-        return response.content
+        // Check availability first
+        let model = SystemLanguageModel.default
+        if let error = PrismError.from(availability: model.availability) {
+            throw error
+        }
+
+        do {
+            let response = try await session.respond(to: userText)
+            return response.content
+        } catch let error as LanguageModelSession.GenerationError {
+            throw mapGenerationError(error)
+        } catch {
+            throw PrismError.from(error)
+        }
+    }
+
+    private func mapGenerationError(_ error: LanguageModelSession.GenerationError) -> PrismError {
+        switch error {
+        case .refusal:
+            return .refusal(explanation: nil)
+        case .guardrailViolation:
+            return .guardrailViolation
+        case .concurrentRequests:
+            return .concurrentRequests
+        case .assetsUnavailable:
+            return .assetsUnavailable
+        case .unsupportedLanguageOrLocale:
+            return .unsupportedLanguage(nil)
+        case .decodingFailure(let ctx):
+            return .decodingFailure(ctx.debugDescription)
+        case .exceededContextWindowSize:
+            return .contextOverflow
+        case .unsupportedGuide(let ctx):
+            return .unsupportedGuide(ctx.debugDescription)
+        case .rateLimited:
+            return .rateLimited
+        @unknown default:
+            return .serviceUnavailable(code: nil)
+        }
     }
 }

@@ -5,7 +5,7 @@ import SwiftData
 
 struct CreatorView: View {
     @StateObject private var vm = CreatorViewModel()
-    @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var repository: HybridPrismRepository
     @State private var showPrizmateSuccess = false
     @State private var createdPrism: PrismDefinition?
     @State private var archetypeSelected = false
@@ -129,9 +129,8 @@ struct CreatorView: View {
 
     private func saveDraft() {
         Task {
-            let repo = PrismRepository(modelContainer: modelContext.container)
             do {
-                if let prism = try await vm.finalizeAndSave(repo: repo) {
+                if let prism = try await vm.finalizeAndSave(repo: repository) {
                     await MainActor.run {
                         createdPrism = prism
                         showPrizmateSuccess = true
@@ -148,17 +147,25 @@ struct CreatorView: View {
 // MARK: - Preview
 
 #Preview("Creator - Empty") {
-    NavigationStack {
+    let container = try! ModelContainer(for: PrismRecord.self, configurations: .init(isStoredInMemoryOnly: true))
+    let auth = SupabaseAuthService()
+
+    return NavigationStack {
         CreatorView()
     }
-    .modelContainer(for: PrismRecord.self, inMemory: true)
+    .modelContainer(container)
+    .environmentObject(HybridPrismRepository(modelContainer: container, auth: auth))
 }
 
 #Preview("Creator - With Messages") {
-    NavigationStack {
+    let container = try! ModelContainer(for: PrismRecord.self, configurations: .init(isStoredInMemoryOnly: true))
+    let auth = SupabaseAuthService()
+
+    return NavigationStack {
         CreatorViewPreview()
     }
-    .modelContainer(for: PrismRecord.self, inMemory: true)
+    .modelContainer(container)
+    .environmentObject(HybridPrismRepository(modelContainer: container, auth: auth))
 }
 
 private struct CreatorViewPreview: View {

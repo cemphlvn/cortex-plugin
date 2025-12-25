@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Step 4: The Library
+/// Step 5: The Library
 /// Shows bundled prisms and invites user to explore or create
 struct OnboardingLibraryView: View {
     var onComplete: (OnboardingDestination) -> Void

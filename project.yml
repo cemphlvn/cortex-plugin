@@ -52,6 +52,7 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         ENABLE_PREVIEWS: YES
         CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_ENTITLEMENTS: Prism/Prism.entitlements
       configs:
         Debug:
           SWIFT_OPTIMIZATION_LEVEL: "-Onone"
@@ -59,8 +60,6 @@ targets:
         Release:
           SWIFT_OPTIMIZATION_LEVEL: "-O"
     dependencies:
-      - framework: FoundationModels.framework
-        embed: false
       - package: Supabase
         product: Supabase
 

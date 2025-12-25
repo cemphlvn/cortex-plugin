@@ -417,7 +417,7 @@ struct OnboardingDemoView: View {
     private func generateWithModel(name: String) async -> Result<[BeamOutput], Error> {
         // Check model availability
         guard ModelAvailability.shared.status.isAvailable else {
-            return .failure(PrismEngine.RunError.modelUnavailable("Model not ready"))
+            return .failure(PrismError.modelNotReady(nil))
         }
 
         do {

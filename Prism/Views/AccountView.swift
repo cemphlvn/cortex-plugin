@@ -1,9 +1,11 @@
 import SwiftUI
+import SwiftData
 import Supabase
 
 /// Account settings view - shows auth state and sign in/out options
 struct AccountView: View {
     @Environment(SupabaseAuthService.self) private var auth
+    @EnvironmentObject private var repository: HybridPrismRepository
     @Environment(\.dismiss) private var dismiss
 
     @State private var showAuthSheet = false
@@ -20,6 +22,16 @@ struct AccountView: View {
                 }
             }
             .listRowBackground(PrismTheme.surface)
+
+            // MARK: - Sync (only if authenticated)
+            if auth.isAuthenticated {
+                Section {
+                    syncSection
+                } header: {
+                    Text("Sync")
+                }
+                .listRowBackground(PrismTheme.surface)
+            }
 
             // MARK: - About
             Section {
@@ -68,6 +80,16 @@ struct AccountView: View {
         .toolbarBackground(PrismTheme.surface, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                SyncStatusButton(
+                    status: repository.syncStatus,
+                    isAuthenticated: auth.isAuthenticated,
+                    pendingCount: repository.pendingSyncIds.count,
+                    onSync: { await repository.syncPendingPrisms() }
+                )
+            }
+        }
         .sheet(isPresented: $showAuthSheet) {
             AuthView(showSkipOption: false)
         }
@@ -86,44 +108,64 @@ struct AccountView: View {
     // MARK: - Authenticated Section
 
     private var authenticatedSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                // User avatar
-                ZStack {
-                    Circle()
-                        .fill(PrismTheme.glass)
-                        .frame(width: 50, height: 50)
+        HStack {
+            // User avatar
+            ZStack {
+                Circle()
+                    .fill(PrismTheme.glass)
+                    .frame(width: 50, height: 50)
 
-                    Text(userInitials)
+                Text(userInitials)
+                    .font(.headline)
+                    .foregroundStyle(PrismTheme.textPrimary)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                if let name = userName {
+                    Text(name)
                         .font(.headline)
                         .foregroundStyle(PrismTheme.textPrimary)
                 }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    if let name = userName {
-                        Text(name)
-                            .font(.headline)
-                            .foregroundStyle(PrismTheme.textPrimary)
-                    }
-                    if let email = userEmail {
-                        Text(email)
-                            .font(.subheadline)
-                            .foregroundStyle(PrismTheme.textSecondary)
-                    }
+                if let email = userEmail {
+                    Text(email)
+                        .font(.subheadline)
+                        .foregroundStyle(PrismTheme.textSecondary)
                 }
             }
-
-            // Sync status
-            HStack {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-                Text("Synced")
-                    .font(.caption)
-                    .foregroundStyle(PrismTheme.textSecondary)
-            }
-            .padding(.top, 4)
         }
         .padding(.vertical, 4)
+    }
+
+    // MARK: - Sync Section
+
+    private var syncSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button {
+                Task { try? await repository.pullFromCloud() }
+            } label: {
+                HStack {
+                    Label("Pull from Cloud", systemImage: "icloud.and.arrow.down")
+                    Spacer()
+                    if isSyncing {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    }
+                }
+                .font(.subheadline)
+                .foregroundStyle(PrismTheme.textPrimary)
+            }
+            .disabled(isSyncing)
+
+            Text("Download prisms saved on other devices")
+                .font(.caption)
+                .foregroundStyle(PrismTheme.textTertiary)
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var isSyncing: Bool {
+        if case .syncing = repository.syncStatus { return true }
+        return false
     }
 
     // MARK: - Unauthenticated Section
@@ -213,9 +255,13 @@ extension AnyJSON {
 }
 
 #Preview("Signed Out") {
-    NavigationStack {
+    let container = try! ModelContainer(for: PrismRecord.self, configurations: .init(isStoredInMemoryOnly: true))
+    let auth = SupabaseAuthService()
+
+    return NavigationStack {
         AccountView()
     }
-    .environment(SupabaseAuthService())
+    .environment(auth)
+    .environmentObject(HybridPrismRepository(modelContainer: container, auth: auth))
     .preferredColorScheme(.dark)
 }

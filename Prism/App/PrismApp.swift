@@ -1,43 +1,103 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 @main
 struct PrismApp: App {
     @State private var authService = SupabaseAuthService()
+    @StateObject private var repository: HybridPrismRepository
+
+    let modelContainer: ModelContainer
+
+    init() {
+        do {
+            let container = try ModelContainer(for: PrismRecord.self)
+            self.modelContainer = container
+
+            // Create auth service and repository
+            let auth = SupabaseAuthService()
+            _authService = State(initialValue: auth)
+            _repository = StateObject(wrappedValue: HybridPrismRepository(
+                modelContainer: container,
+                auth: auth
+            ))
+
+            // Configure UIKit appearances for dark theme
+            configureAppearance()
+        } catch {
+            fatalError("Failed to create ModelContainer: \(error)")
+        }
+    }
+
+    private func configureAppearance() {
+        // Fix white background flash during List swipe actions
+        let darkBg = UIColor(white: 0.06, alpha: 1.0)
+
+        UITableView.appearance().backgroundColor = darkBg
+        UITableViewCell.appearance().backgroundColor = .clear
+
+        // Modern SwiftUI Lists use UICollectionView
+        UICollectionView.appearance().backgroundColor = darkBg
+
+        // Ensure all contained views also have correct background
+        UIView.appearance(whenContainedInInstancesOf: [UITableView.self]).backgroundColor = .clear
+        UIView.appearance(whenContainedInInstancesOf: [UICollectionView.self]).backgroundColor = .clear
+    }
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(authService)
+                .environmentObject(repository)
         }
-        .modelContainer(for: PrismRecord.self)
+        .modelContainer(modelContainer)
     }
 }
 
 // MARK: - Root View (Onboarding Gate)
 
 struct RootView: View {
+    @Environment(SupabaseAuthService.self) private var auth
+    @EnvironmentObject private var repository: HybridPrismRepository
+
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @State private var showOnboarding = false
     @State private var onboardingDestination: OnboardingLibraryView.OnboardingDestination?
+    @State private var hasSyncedOnLaunch = false
 
     var body: some View {
         ContentView(initialTab: onboardingDestination == .creator ? .creator : .prisms)
-            .fullScreenCover(isPresented: $showOnboarding) {
+            .fullScreenCover(isPresented: shouldShowOnboarding) {
                 OnboardingContainerView { destination in
                     onboardingDestination = destination
                     hasCompletedOnboarding = true
-                    showOnboarding = false
                 }
             }
-            .onAppear {
-                if !hasCompletedOnboarding {
-                    // Small delay to ensure smooth presentation
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        showOnboarding = true
-                    }
+            .task {
+                // Auto-sync once on launch (not on every appear)
+                guard !hasSyncedOnLaunch else { return }
+                hasSyncedOnLaunch = true
+                if auth.isAuthenticated {
+                    await repository.syncPendingPrisms()
                 }
             }
+            .onChange(of: auth.isAuthenticated) { _, isAuthenticated in
+                repository.onAuthStateChanged()
+                if isAuthenticated {
+                    Task { await repository.syncPendingPrisms() }
+                }
+            }
+    }
+
+    /// Binding derived directly from persisted state — no intermediate @State
+    private var shouldShowOnboarding: Binding<Bool> {
+        Binding(
+            get: { !hasCompletedOnboarding },
+            set: { newValue in
+                if !newValue {
+                    hasCompletedOnboarding = true
+                }
+            }
+        )
     }
 }
 
@@ -80,6 +140,9 @@ struct ContentView: View {
             // Prisms Tab
             NavigationStack(path: $prismPath) {
                 PrismListView()
+                    .navigationDestination(for: PrismDefinition.self) { prism in
+                        PrismRunView(prism: prism)
+                    }
             }
             .tabItem {
                 Label("Prisms", systemImage: "triangle.fill")
@@ -87,6 +150,8 @@ struct ContentView: View {
             .tag(AppTab.prisms)
         }
         .tint(.white)
+        .background(PrismTheme.background)
+        .preferredColorScheme(.dark)
         .onChange(of: selectedTab) { _, newTab in
             if newTab == .prisms, let prism = createdPrismToShow {
                 // Navigate to the created prism after tab switch

@@ -143,11 +143,9 @@ final class CreatorViewModel: ObservableObject {
                     self.messages.append(CreatorMessage(role: .golden, text: reply))
                 }
             } catch {
+                let errorMessage = errorToUserMessage(error)
                 await MainActor.run {
-                    self.messages.append(CreatorMessage(
-                        role: .golden,
-                        text: "Could you rephrase that? I want to understand exactly what you need."
-                    ))
+                    self.messages.append(CreatorMessage(role: .golden, text: errorMessage))
                 }
             }
         }
@@ -207,7 +205,7 @@ final class CreatorViewModel: ObservableObject {
 
     // MARK: - Finalize (PRIZMATE)
 
-    func finalizeAndSave(repo: PrismRepositoryProtocol) async throws -> PrismDefinition? {
+    func finalizeAndSave(repo: HybridPrismRepository) async throws -> PrismDefinition? {
         guard let draft = draft else { return nil }
 
         // Final validation
@@ -230,5 +228,29 @@ final class CreatorViewModel: ObservableObject {
         isUpdatingDraft = false
         draftDiff = DraftDiff()
         compileStatus = .idle
+    }
+
+    // MARK: - Error Handling
+
+    @available(iOS 26.0, *)
+    private func errorToUserMessage(_ error: Error) -> String {
+        let prismError = (error as? PrismError) ?? PrismError.from(error)
+
+        switch prismError {
+        case .serviceUnavailable:
+            return "I'm having trouble connecting. Try again in a moment?"
+        case .modelDownloading, .modelNotReady:
+            return "The AI is still getting ready. One moment..."
+        case .appleIntelligenceNotEnabled:
+            return "Please enable Apple Intelligence in Settings to continue."
+        case .deviceNotEligible:
+            return "This device doesn't support Apple Intelligence."
+        case .refusal, .guardrailViolation:
+            return "Let's try a different approach. What else can I help with?"
+        case .concurrentRequests:
+            return "Still thinking about that... one moment."
+        default:
+            return "Could you rephrase that? I want to understand exactly what you need."
+        }
     }
 }

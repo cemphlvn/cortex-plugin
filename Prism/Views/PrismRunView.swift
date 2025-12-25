@@ -1,14 +1,15 @@
 import SwiftUI
+import SwiftData
 import FoundationModels
 
 struct PrismRunView: View {
-    @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var repository: HybridPrismRepository
 
     @State private var prism: PrismDefinition
     @State private var input: String = ""
     @State private var outputs: [BeamOutput] = []
     @State private var runState: RunState = .idle
-    @State private var errorMessage: String?
+    @State private var currentError: PrismError?
     @State private var navigateToEdit = false
 
     init(prism: PrismDefinition) {
@@ -56,9 +57,7 @@ struct PrismRunView: View {
 
     private func savePrism(_ updated: PrismDefinition) async {
         do {
-            let repository = PrismRepository(modelContainer: modelContext.container)
             try await repository.save(updated)
-
             await MainActor.run {
                 prism = updated
             }
@@ -136,21 +135,88 @@ struct PrismRunView: View {
         .disabled(runState == .running)
     }
 
+    @available(iOS 26.0, *)
     @ViewBuilder
     private var errorView: some View {
-        if let errorMessage {
-            HStack(spacing: 8) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(PrismTheme.error)
-                Text(errorMessage)
-                    .font(.callout)
-                    .foregroundStyle(PrismTheme.textPrimary)
+        if let error = currentError {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 10) {
+                    Image(systemName: error.iconName)
+                        .font(.title3)
+                        .foregroundStyle(PrismTheme.error)
+
+                    Text(error.errorDescription ?? "An error occurred")
+                        .font(.callout.weight(.medium))
+                        .foregroundStyle(PrismTheme.textPrimary)
+                }
+
+                if let suggestion = error.recoverySuggestion {
+                    Text(suggestion)
+                        .font(.caption)
+                        .foregroundStyle(PrismTheme.textSecondary)
+                }
+
+                // Action buttons based on error type
+                errorActions(for: error)
             }
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(PrismTheme.error.opacity(0.15))
+            .background(PrismTheme.error.opacity(0.12))
             .clipShape(RoundedRectangle(cornerRadius: PrismTheme.cornerRadius))
+            .overlay(
+                RoundedRectangle(cornerRadius: PrismTheme.cornerRadius)
+                    .strokeBorder(PrismTheme.error.opacity(0.3), lineWidth: 0.5)
+            )
         }
+    }
+
+    @available(iOS 26.0, *)
+    @ViewBuilder
+    private func errorActions(for error: PrismError) -> some View {
+        HStack(spacing: 12) {
+            // Settings button for AI not enabled
+            if case .appleIntelligenceNotEnabled = error {
+                Button {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    Label("Open Settings", systemImage: "gear")
+                        .font(.caption.weight(.medium))
+                }
+                .buttonStyle(.bordered)
+                .tint(PrismTheme.textSecondary)
+            }
+
+            // Retry button for retryable errors
+            if error.isRetryable {
+                Button {
+                    currentError = nil
+                    runPrism()
+                } label: {
+                    Label("Retry", systemImage: "arrow.clockwise")
+                        .font(.caption.weight(.medium))
+                }
+                .buttonStyle(.bordered)
+                .tint(PrismTheme.textSecondary)
+            }
+
+            // Edit button for schema errors
+            switch error {
+            case .schemaCompilationFailed, .invalidSchema, .decodingFailure:
+                Button {
+                    navigateToEdit = true
+                } label: {
+                    Label("Edit Prism", systemImage: "slider.horizontal.3")
+                        .font(.caption.weight(.medium))
+                }
+                .buttonStyle(.bordered)
+                .tint(PrismTheme.textSecondary)
+            default:
+                EmptyView()
+            }
+        }
+        .padding(.top, 4)
     }
 
     @ViewBuilder
@@ -246,7 +312,7 @@ struct PrismRunView: View {
         guard !trimmedInput.isEmpty else { return }
 
         runState = .running
-        errorMessage = nil
+        currentError = nil
         outputs = []
 
         Task {
@@ -273,54 +339,28 @@ struct PrismRunView: View {
                 outputs = result
                 runState = .revealed
             }
+        } catch let prismError as PrismError {
+            print("[PrismRun] PrismError: \(prismError.errorDescription ?? "unknown")")
+            await MainActor.run {
+                currentError = prismError
+                runState = .idle
+            }
         } catch {
             print("[PrismRun] ERROR: \(error)")
             print("[PrismRun] Error type: \(type(of: error))")
-            print("[PrismRun] Full description: \(String(describing: error))")
             await MainActor.run {
-                errorMessage = friendlyErrorMessage(for: error)
+                currentError = PrismError.from(error)
                 runState = .idle
             }
         }
     }
-
-    /// Convert Foundation Models errors to user-friendly messages
-    private func friendlyErrorMessage(for error: Error) -> String {
-        let description = String(describing: error)
-
-        // Foundation Models generation errors
-        if description.contains("GenerationError") {
-            if description.contains("-1") {
-                return "Apple Intelligence is temporarily unavailable. Please try again in a moment."
-            }
-            return "Generation failed. Please check your input and try again."
-        }
-
-        // Model availability errors
-        if description.contains("modelNotReady") {
-            return "The AI model is still downloading. Please try again later."
-        }
-
-        if description.contains("appleIntelligenceNotEnabled") {
-            return "Please enable Apple Intelligence in Settings > Apple Intelligence & Siri."
-        }
-
-        if description.contains("deviceNotEligible") {
-            return "This device doesn't support Apple Intelligence."
-        }
-
-        // Schema/compilation errors
-        if description.contains("Schema") || description.contains("compile") {
-            return "There's an issue with this Prism's configuration. Try editing it."
-        }
-
-        // Default to original description
-        return error.localizedDescription
-    }
 }
 
 #Preview {
-    NavigationStack {
+    let container = try! ModelContainer(for: PrismRecord.self, configurations: .init(isStoredInMemoryOnly: true))
+    let auth = SupabaseAuthService()
+
+    return NavigationStack {
         PrismRunView(prism: PrismDefinition(
             name: "Caption Creator",
             instructions: "Create a short caption",
@@ -334,5 +374,6 @@ struct PrismRunView: View {
             exampleInput: "sunset walk after a hard week"
         ))
     }
+    .environmentObject(HybridPrismRepository(modelContainer: container, auth: auth))
     .preferredColorScheme(.dark)
 }

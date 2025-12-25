@@ -2,8 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct PrismListView: View {
-    @Environment(\.modelContext) private var modelContext
     @Environment(SupabaseAuthService.self) private var auth
+    @EnvironmentObject private var repository: HybridPrismRepository
 
     // MARK: - State (all in one place)
     @State private var prisms: [PrismDefinition] = []
@@ -67,6 +67,14 @@ struct PrismListView: View {
             AccountView()
         }
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                SyncStatusButton(
+                    status: repository.syncStatus,
+                    isAuthenticated: auth.isAuthenticated,
+                    pendingCount: repository.pendingSyncIds.count,
+                    onSync: { await repository.syncPendingPrisms() }
+                )
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showAccount = true
@@ -155,6 +163,7 @@ struct PrismListView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        .background(PrismTheme.background)
     }
 
     // MARK: - Empty State
@@ -251,8 +260,6 @@ struct PrismListView: View {
         loadError = nil
 
         do {
-            let repository = PrismRepository(modelContainer: modelContext.container)
-
             // Seed bundled prisms if needed
             if try await repository.needsSeeding() {
                 try await repository.seedBundledPrisms()
@@ -276,7 +283,6 @@ struct PrismListView: View {
 
     private func deletePrism(id: UUID) async {
         do {
-            let repository = PrismRepository(modelContainer: modelContext.container)
             try await repository.delete(id: id)
 
             await MainActor.run {
@@ -292,7 +298,6 @@ struct PrismListView: View {
 
     private func savePrism(_ prism: PrismDefinition) async {
         do {
-            let repository = PrismRepository(modelContainer: modelContext.container)
             try await repository.save(prism)
 
             await MainActor.run {
@@ -508,11 +513,15 @@ private struct PrismVizBadge: View {
 // MARK: - Preview
 
 #Preview {
-    NavigationStack {
+    let container = try! ModelContainer(for: PrismRecord.self, configurations: .init(isStoredInMemoryOnly: true))
+    let auth = SupabaseAuthService()
+
+    return NavigationStack {
         PrismListView()
     }
-    .modelContainer(for: PrismRecord.self, inMemory: true)
-    .environment(SupabaseAuthService())
+    .modelContainer(container)
+    .environment(auth)
+    .environmentObject(HybridPrismRepository(modelContainer: container, auth: auth))
     .preferredColorScheme(.dark)
 }
 
