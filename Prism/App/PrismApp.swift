@@ -3,9 +3,12 @@ import SwiftData
 
 @main
 struct PrismApp: App {
+    @State private var authService = SupabaseAuthService()
+
     var body: some Scene {
         WindowGroup {
             RootView()
+                .environment(authService)
         }
         .modelContainer(for: PrismRecord.self)
     }

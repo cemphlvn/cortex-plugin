@@ -3,14 +3,16 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00C07CEB2B87041DF1227887 /* SupabaseAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E73FFAFFFE1EE51A7D0A4EFA /* SupabaseAuthService.swift */; };
 		012CD2053F6DE5109587219E /* PrismEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042164A669C652FF9FDD0E5C /* PrismEffects.swift */; };
 		0804082A5E1BCE327B03288F /* PrismRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D730E7EFD44A6C3A9F4B8C /* PrismRecord.swift */; };
 		0C290FF65837D6D2B6E3FA66 /* ModelAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEC3608C73C52550D8E1EF74 /* ModelAvailability.swift */; };
 		0D377D4AFA52694B383F27B6 /* PrismButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1D41F0DFD9DA1D9843B7671 /* PrismButton.swift */; };
+		0EAFAD5541FAE0D4B7ECF761 /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5C89E4965C23DE99AE5BEB /* AccountView.swift */; };
 		0F394C6FFC1CE2D9153E6706 /* BeamValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356330BF7FD752CCE7DBBF65 /* BeamValue.swift */; };
 		123F621FBE600F4F606E8FB7 /* BeamOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035CB21A771AFF1D85249788 /* BeamOutput.swift */; };
 		19BD1D2AE0059079E5D68F16 /* ArchetypeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FAB00A7BFB9B7A6D0B3C53 /* ArchetypeSpec.swift */; };
@@ -23,6 +25,7 @@
 		5041D68ABC20CF45F18F667C /* ArchetypePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48DF1A015DD752B947E565E1 /* ArchetypePickerView.swift */; };
 		53663DA182872DAD28F15CE4 /* PrismEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E12C83D00CC6F597750FB1A /* PrismEngine.swift */; };
 		563F2FEDBE9F30A693F16170 /* meeting_notes.json in Resources */ = {isa = PBXBuildFile; fileRef = 9D6CCE7D29D598945C19012B /* meeting_notes.json */; };
+		5EA917AF5480F8C34E794B7E /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 4091C122B5B7009E2A22A764 /* Supabase */; };
 		632379F6DA3D0E11711871E1 /* PrismApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0FE572AD856E190D4583B1 /* PrismApp.swift */; };
 		641A1914E621483D72D39A74 /* OnboardingConceptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 618969FAA3636F8D75D04074 /* OnboardingConceptView.swift */; };
 		6889D844735234AD9FDCE81E /* OnboardingVoidView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44AAC7BE20C33779F952D127 /* OnboardingVoidView.swift */; };
@@ -30,8 +33,10 @@
 		6B2F821DBD687EDE8BB1CCB1 /* OnboardingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0289091D09199DD13F6626C /* OnboardingContainerView.swift */; };
 		704A0D9B6CBA85167A4EEB87 /* BeamSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FE37F4E1BC11962A2DF8B67 /* BeamSpec.swift */; };
 		70630BF2A0343BD37CCC8C4F /* PrismAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D849068767E8B515CEBFF2E /* PrismAnimation.swift */; };
+		732B2526D8AF2425E1678F4E /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E4590F092D6BAF1EC2BD1DE /* AuthView.swift */; };
 		7A4BFD456BBCD8D68C926391 /* OnboardingLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A3D0CC6B3677BA8867BC5A /* OnboardingLibraryView.swift */; };
 		7B4B1733557D8226CE1E46A3 /* PrismExecutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4CAF8D503306110FFFFB356 /* PrismExecutable.swift */; };
+		8F416DEB28139854DD5DDC4B /* SupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F736EDC2FE9FED2B00B21751 /* SupabaseClient.swift */; };
 		8F7DD4196A5D1E62BC6D0016 /* PrismEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02271AC1011B483FD46465E /* PrismEditView.swift */; };
 		90A8666F35DED9EBBE53B40B /* PrismLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF02620730B1C71B88EE4051 /* PrismLoader.swift */; };
 		9995BB1D2FD979A69E5A5F74 /* PrismBlueprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6AAC4C66AB7A49A42734B84 /* PrismBlueprint.swift */; };
@@ -41,6 +46,7 @@
 		A992F5945814831ED4D708FA /* ChatPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5333705C14F91A8B48D971C9 /* ChatPanel.swift */; };
 		AC3E6370F50FA55269F36D30 /* product_review.json in Resources */ = {isa = PBXBuildFile; fileRef = E9D800D07D791E459592D7A4 /* product_review.json */; };
 		AE15ED0A9558F3DC628E8F47 /* AtelierPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B3906596C5ADF6838E4A6D /* AtelierPanel.swift */; };
+		B3134F2F179E1043C0777B08 /* SupabasePrismRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3284E962539BB099EB39FB80 /* SupabasePrismRepository.swift */; };
 		B5125103495530508581FC68 /* BeamSlotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F7AD5ADD04D4547DC143D8 /* BeamSlotView.swift */; };
 		B86E62797B1FBD6304514C19 /* PrismDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66DCFCA6E72A0E3ADF6BE06B /* PrismDefinition.swift */; };
 		BD23340731BAEDA615135997 /* BeamOutputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6379A5E33EE2B3422E67384F /* BeamOutputView.swift */; };
@@ -62,9 +68,12 @@
 		1E0FE572AD856E190D4583B1 /* PrismApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismApp.swift; sourceTree = "<group>"; };
 		1E12C83D00CC6F597750FB1A /* PrismEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismEngine.swift; sourceTree = "<group>"; };
 		2AFE11F1FF281366AFA86EC4 /* PrismRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismRepository.swift; sourceTree = "<group>"; };
+		3284E962539BB099EB39FB80 /* SupabasePrismRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabasePrismRepository.swift; sourceTree = "<group>"; };
 		356330BF7FD752CCE7DBBF65 /* BeamValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamValue.swift; sourceTree = "<group>"; };
-		3CBECDC40DB2F7D8BF88B956 /* Prism.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Prism.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3CBECDC40DB2F7D8BF88B956 /* Prism.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Prism.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3E4590F092D6BAF1EC2BD1DE /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		41CEC32FDDB6F0D060420924 /* GoldenPrismAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoldenPrismAgent.swift; sourceTree = "<group>"; };
+		420F1D50954A7863EFE145D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		44AAC7BE20C33779F952D127 /* OnboardingVoidView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingVoidView.swift; sourceTree = "<group>"; };
 		48DF1A015DD752B947E565E1 /* ArchetypePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchetypePickerView.swift; sourceTree = "<group>"; };
 		51A3D0CC6B3677BA8867BC5A /* OnboardingLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingLibraryView.swift; sourceTree = "<group>"; };
@@ -80,20 +89,25 @@
 		9D6CCE7D29D598945C19012B /* meeting_notes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = meeting_notes.json; sourceTree = "<group>"; };
 		AF02620730B1C71B88EE4051 /* PrismLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismLoader.swift; sourceTree = "<group>"; };
 		B5F7AD5ADD04D4547DC143D8 /* BeamSlotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamSlotView.swift; sourceTree = "<group>"; };
+		BF5C89E4965C23DE99AE5BEB /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
 		C02271AC1011B483FD46465E /* PrismEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismEditView.swift; sourceTree = "<group>"; };
 		C0289091D09199DD13F6626C /* OnboardingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainerView.swift; sourceTree = "<group>"; };
 		C05EA48F4106529029883014 /* PrizmateCompiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrizmateCompiler.swift; sourceTree = "<group>"; };
 		C1572B1DD625664720970C34 /* PrismListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismListView.swift; sourceTree = "<group>"; };
+		C1A1434740A63789F6FF52DD /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		CAA9F714D510B1D4D98B0C99 /* OnboardingDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingDemoView.swift; sourceTree = "<group>"; };
+		CB2D05BC965C7ECB5ACCE86F /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		DE786A9540D7E338EE20A141 /* CreatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatorView.swift; sourceTree = "<group>"; };
 		E1D41F0DFD9DA1D9843B7671 /* PrismButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismButton.swift; sourceTree = "<group>"; };
 		E4CAF8D503306110FFFFB356 /* PrismExecutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismExecutable.swift; sourceTree = "<group>"; };
 		E6AAC4C66AB7A49A42734B84 /* PrismBlueprint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismBlueprint.swift; sourceTree = "<group>"; };
+		E73FFAFFFE1EE51A7D0A4EFA /* SupabaseAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseAuthService.swift; sourceTree = "<group>"; };
 		E9869903CE1248290718B2F6 /* FoundationModels.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FoundationModels.framework; sourceTree = "<group>"; };
 		E9D800D07D791E459592D7A4 /* product_review.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = product_review.json; sourceTree = "<group>"; };
 		EEC3608C73C52550D8E1EF74 /* ModelAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelAvailability.swift; sourceTree = "<group>"; };
 		F31F020D16EC09F9C2017682 /* PrismTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismTheme.swift; sourceTree = "<group>"; };
 		F6D730E7EFD44A6C3A9F4B8C /* PrismRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrismRecord.swift; sourceTree = "<group>"; };
+		F736EDC2FE9FED2B00B21751 /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
 		F969F813E764F00EA7855B93 /* OnboardingEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingEffects.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -103,6 +117,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				26CD6D1D0908078DEA89EB03 /* FoundationModels.framework in Frameworks */,
+				5EA917AF5480F8C34E794B7E /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +127,7 @@
 		081163646A4A620D92B0DCA2 = {
 			isa = PBXGroup;
 			children = (
+				CFE75A7DDDCCA21CB881C6A6 /* Config */,
 				8C82A9A9E1294F24F80AF4F6 /* Prism */,
 				5B6B32AF8EB299CB6F93AF17 /* Frameworks */,
 				82EA743558BFD02527A88470 /* Products */,
@@ -152,6 +168,16 @@
 			path = Engine;
 			sourceTree = "<group>";
 		};
+		7AAC14B0A252E3D6CC24C8E8 /* Supabase */ = {
+			isa = PBXGroup;
+			children = (
+				E73FFAFFFE1EE51A7D0A4EFA /* SupabaseAuthService.swift */,
+				F736EDC2FE9FED2B00B21751 /* SupabaseClient.swift */,
+				3284E962539BB099EB39FB80 /* SupabasePrismRepository.swift */,
+			);
+			path = Supabase;
+			sourceTree = "<group>";
+		};
 		82EA743558BFD02527A88470 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -185,7 +211,9 @@
 				FAEB5DB5CD24B173A5C2D359 /* Models */,
 				D7890DB983358F69ACF033FF /* Persistence */,
 				E7629ACDED145DF2F6ADC236 /* Resources */,
+				7AAC14B0A252E3D6CC24C8E8 /* Supabase */,
 				FDDD2319C18B03CA3673D4CC /* Views */,
+				420F1D50954A7863EFE145D9 /* Info.plist */,
 			);
 			path = Prism;
 			sourceTree = "<group>";
@@ -206,6 +234,15 @@
 				1E0FE572AD856E190D4583B1 /* PrismApp.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		CFE75A7DDDCCA21CB881C6A6 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				C1A1434740A63789F6FF52DD /* Debug.xcconfig */,
+				CB2D05BC965C7ECB5ACCE86F /* Release.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 		D7890DB983358F69ACF033FF /* Persistence */ = {
@@ -241,6 +278,8 @@
 			isa = PBXGroup;
 			children = (
 				4B492309A9EB9ECF3F8AB052 /* Onboarding */,
+				BF5C89E4965C23DE99AE5BEB /* AccountView.swift */,
+				3E4590F092D6BAF1EC2BD1DE /* AuthView.swift */,
 				6379A5E33EE2B3422E67384F /* BeamOutputView.swift */,
 				B5F7AD5ADD04D4547DC143D8 /* BeamSlotView.swift */,
 				0D849068767E8B515CEBFF2E /* PrismAnimation.swift */,
@@ -271,6 +310,7 @@
 			);
 			name = Prism;
 			packageProductDependencies = (
+				4091C122B5B7009E2A22A764 /* Supabase */,
 			);
 			productName = Prism;
 			productReference = 3CBECDC40DB2F7D8BF88B956 /* Prism.app */;
@@ -300,7 +340,9 @@
 			);
 			mainGroup = 081163646A4A620D92B0DCA2;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
+			packageReferences = (
+				BB7F3D184FC62D3BD7075C1B /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -327,9 +369,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0EAFAD5541FAE0D4B7ECF761 /* AccountView.swift in Sources */,
 				5041D68ABC20CF45F18F667C /* ArchetypePickerView.swift in Sources */,
 				19BD1D2AE0059079E5D68F16 /* ArchetypeSpec.swift in Sources */,
 				AE15ED0A9558F3DC628E8F47 /* AtelierPanel.swift in Sources */,
+				732B2526D8AF2425E1678F4E /* AuthView.swift in Sources */,
 				123F621FBE600F4F606E8FB7 /* BeamOutput.swift in Sources */,
 				BD23340731BAEDA615135997 /* BeamOutputView.swift in Sources */,
 				B5125103495530508581FC68 /* BeamSlotView.swift in Sources */,
@@ -365,6 +409,9 @@
 				EDD4A4CC8A418C346781F730 /* PrismSchemaCompiler.swift in Sources */,
 				2068E29451F82E8DD5AFA620 /* PrismTheme.swift in Sources */,
 				E2B239CC540BB0D7D1B91509 /* PrizmateCompiler.swift in Sources */,
+				00C07CEB2B87041DF1227887 /* SupabaseAuthService.swift in Sources */,
+				8F416DEB28139854DD5DDC4B /* SupabaseClient.swift in Sources */,
+				B3134F2F179E1043C0777B08 /* SupabasePrismRepository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -377,12 +424,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NK8ZK38S8A;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\".\"",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Prism/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Prism;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -403,6 +452,7 @@
 		};
 		982D6354F7A0E5E91097D64D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C1A1434740A63789F6FF52DD /* Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -469,6 +519,7 @@
 		};
 		F77B2C4C002B81D994EADF5F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = CB2D05BC965C7ECB5ACCE86F /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -532,12 +583,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NK8ZK38S8A;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\".\"",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Prism/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Prism;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -579,6 +632,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		BB7F3D184FC62D3BD7075C1B /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4091C122B5B7009E2A22A764 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB7F3D184FC62D3BD7075C1B /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F89E62DC5A2CEA3C9FF3EC43 /* Project object */;
 }

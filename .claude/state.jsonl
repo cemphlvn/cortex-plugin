@@ -16,3 +16,6 @@
 {"ts":"2025-12-24T22:16:41Z","type":"milestone","msg":"Onboarding polish: PRISM brand reveal, relatable demo input (stuck/procrastination), numbered showcase (PRISM #1-5)"}
 {"ts":"2025-12-24T22:21:00Z","type":"milestone","msg":"Demo reimagined: name input → acrostic poem generator, real personalized output, shareable gift moment"}
 {"ts":"2025-12-24T22:29:16Z","type":"milestone","msg":"Onboarding flow enhanced: I→PRISM→O concept step, tap-based archetypes with transform animations, real AI poem generation with fallback"}
+{"ts":"2025-12-25T15:32:07Z","type":"milestone","msg":"Phase 1 Supabase: SPM pkg, SupabaseClient, SupabasePrismRepository, schema.sql, xcconfig, local CLI"}
+{"ts":"2025-12-25T15:39:51Z","type":"milestone","msg":"Phase 2 Auth: SupabaseAuthService (Apple/Google/Email), SignInWithAppleButton, 5-col schema"}
+{"ts":"2025-12-25T15:51:39Z","type":"milestone","msg":"Auth UI complete: AuthView (Apple/Google/Email), AccountView, toolbar avatar, terms/privacy links"}

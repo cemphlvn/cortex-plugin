@@ -12,8 +12,20 @@ struct PrismEngine: Sendable {
     ///   - input: User's incident input (I)
     /// - Returns: Ordered beam outputs (O)
     func run(executable: PrismExecutable, input: String) async throws -> [BeamOutput] {
+        // Check model availability first
+        let model = SystemLanguageModel.default
+        guard case .available = model.availability else {
+            if case .unavailable(let reason) = model.availability {
+                throw RunError.modelUnavailable(String(describing: reason))
+            }
+            throw RunError.modelUnavailable("Unknown")
+        }
+
         // Create session with instructions (part of C)
         let session = LanguageModelSession(instructions: executable.instructions)
+
+        // Prewarm to reduce latency and catch early errors
+        await session.prewarm(promptPrefix: nil)
 
         // Guided generation: respond with schema constraint
         // Schema is the other part of C

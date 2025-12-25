@@ -258,23 +258,64 @@ struct PrismRunView: View {
     private func executeRun(input: String) async {
         do {
             // Compile (cached)
+            print("[PrismRun] Compiling prism: \(prism.name)")
             let cache = PrismExecutableCache()
             let executable = try await cache.getOrCompile(prism)
+            print("[PrismRun] Compiled successfully")
 
             // Run
+            print("[PrismRun] Running with input: \(input.prefix(50))...")
             let engine = PrismEngine()
             let result = try await engine.run(executable: executable, input: input)
+            print("[PrismRun] Got \(result.count) outputs")
 
             await MainActor.run {
                 outputs = result
                 runState = .revealed
             }
         } catch {
+            print("[PrismRun] ERROR: \(error)")
+            print("[PrismRun] Error type: \(type(of: error))")
+            print("[PrismRun] Full description: \(String(describing: error))")
             await MainActor.run {
-                errorMessage = error.localizedDescription
+                errorMessage = friendlyErrorMessage(for: error)
                 runState = .idle
             }
         }
+    }
+
+    /// Convert Foundation Models errors to user-friendly messages
+    private func friendlyErrorMessage(for error: Error) -> String {
+        let description = String(describing: error)
+
+        // Foundation Models generation errors
+        if description.contains("GenerationError") {
+            if description.contains("-1") {
+                return "Apple Intelligence is temporarily unavailable. Please try again in a moment."
+            }
+            return "Generation failed. Please check your input and try again."
+        }
+
+        // Model availability errors
+        if description.contains("modelNotReady") {
+            return "The AI model is still downloading. Please try again later."
+        }
+
+        if description.contains("appleIntelligenceNotEnabled") {
+            return "Please enable Apple Intelligence in Settings > Apple Intelligence & Siri."
+        }
+
+        if description.contains("deviceNotEligible") {
+            return "This device doesn't support Apple Intelligence."
+        }
+
+        // Schema/compilation errors
+        if description.contains("Schema") || description.contains("compile") {
+            return "There's an issue with this Prism's configuration. Try editing it."
+        }
+
+        // Default to original description
+        return error.localizedDescription
     }
 }
 

@@ -3,6 +3,7 @@ import SwiftData
 
 struct PrismListView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(SupabaseAuthService.self) private var auth
 
     // MARK: - State (all in one place)
     @State private var prisms: [PrismDefinition] = []
@@ -12,6 +13,7 @@ struct PrismListView: View {
     @State private var prismToEdit: PrismDefinition?
     @State private var showDeleteAlert = false
     @State private var prismToDelete: PrismDefinition?
+    @State private var showAccount = false
 
     var body: some View {
         Group {
@@ -61,6 +63,48 @@ struct PrismListView: View {
                 Task { await savePrism(updated) }
             }
         }
+        .navigationDestination(isPresented: $showAccount) {
+            AccountView()
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showAccount = true
+                } label: {
+                    if auth.isAuthenticated {
+                        // Signed in: show user avatar
+                        Circle()
+                            .fill(PrismTheme.glass)
+                            .frame(width: 30, height: 30)
+                            .overlay(
+                                Text(userInitials)
+                                    .font(.caption.weight(.medium))
+                                    .foregroundStyle(PrismTheme.textPrimary)
+                            )
+                    } else {
+                        // Not signed in: show person icon
+                        Image(systemName: "person.circle")
+                            .font(.title3)
+                            .foregroundStyle(PrismTheme.textSecondary)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - User Initials
+
+    private var userInitials: String {
+        if let data = auth.currentUser?.userMetadata,
+           let name = data["full_name"]?.stringValue {
+            let parts = name.split(separator: " ")
+            let initials = parts.prefix(2).compactMap { $0.first }.map(String.init)
+            return initials.joined()
+        }
+        if let email = auth.currentUser?.email {
+            return String(email.prefix(1)).uppercased()
+        }
+        return "?"
     }
 
     // MARK: - Loading View
@@ -468,6 +512,7 @@ private struct PrismVizBadge: View {
         PrismListView()
     }
     .modelContainer(for: PrismRecord.self, inMemory: true)
+    .environment(SupabaseAuthService())
     .preferredColorScheme(.dark)
 }
 
