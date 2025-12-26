@@ -18,4 +18,4 @@ build/
 *.egg-info/
 
 # Plugins and extensions
-.serena/
+.serena/*.xcuserstate

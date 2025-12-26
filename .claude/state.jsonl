@@ -28,3 +28,4 @@
 {"ts":"2025-12-26T19:37:44Z","type":"milestone","msg":"Paywall V2: 3-tier decoy pricing (81% save), animated prism+CTA, trigger headlines, loss-aversion copy, skeleton loader"}
 {"ts":"2025-12-26T23:10:00Z","type":"milestone","msg":"Paywall V3: research-backed CTA animations (pulse/glow/sweep/press +20%), new copy, Most Popular badge, discount vs monthly, staggered animations everywhere"}
 {"ts":"2025-12-26T23:30:00Z","type":"milestone","msg":"Paywall triggers: onboarding soft paywall (auth→promo), session-based (3rd open), sync lock badge already present"}
+{"ts":"2025-12-27T00:15:00Z","type":"milestone","msg":"RevenueCat user linking: userId prop in AuthService, logIn/logOut wired to auth state changes"}

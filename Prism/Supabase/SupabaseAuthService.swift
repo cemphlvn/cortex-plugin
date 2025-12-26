@@ -19,6 +19,9 @@ final class SupabaseAuthService {
 
     var isAuthenticated: Bool { currentUser != nil }
 
+    /// User ID for RevenueCat linking
+    var userId: String? { currentUser?.id.uuidString }
+
     // MARK: - Init
 
     init() {

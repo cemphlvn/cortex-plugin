@@ -115,8 +115,27 @@ struct RootView: View {
             }
             .onChange(of: auth.isAuthenticated) { _, isAuthenticated in
                 repository.onAuthStateChanged()
-                if isAuthenticated && entitlementStore.hasPro {
-                    Task { await repository.syncPendingPrisms() }
+
+                // Link RevenueCat purchases to user account
+                Task {
+                    if isAuthenticated, let userId = auth.userId {
+                        try? await entitlementStore.logIn(userId: userId)
+                    } else {
+                        try? await entitlementStore.logOut()
+                    }
+
+                    // Sync if Pro
+                    if isAuthenticated && entitlementStore.hasPro {
+                        await repository.syncPendingPrisms()
+                    }
+                }
+            }
+            .onChange(of: entitlementStore.hasPro) { _, hasPro in
+                // User just upgraded → sync pending prisms
+                if hasPro && auth.isAuthenticated {
+                    Task {
+                        await repository.syncPendingPrisms()
+                    }
                 }
             }
     }
