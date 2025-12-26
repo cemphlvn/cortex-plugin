@@ -68,8 +68,11 @@ struct RootView: View {
     @EnvironmentObject private var repository: HybridPrismRepository
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("appOpenCount") private var appOpenCount = 0
+    @AppStorage("hasSeenSessionPaywall") private var hasSeenSessionPaywall = false
     @State private var onboardingDestination: OnboardingLibraryView.OnboardingDestination?
     @State private var hasSyncedOnLaunch = false
+    @State private var showSessionPaywall = false
 
     var body: some View {
         ContentView(initialTab: onboardingDestination == .creator ? .creator : .prisms)
@@ -79,12 +82,29 @@ struct RootView: View {
                     hasCompletedOnboarding = true
                 }
             }
+            .fullScreenCover(isPresented: $showSessionPaywall) {
+                PrismPaywallView(trigger: .generic)
+            }
             .task {
                 // Wire entitlement store to repository
                 repository.setEntitlementStore(entitlementStore)
 
                 // Fetch offerings on launch
                 await entitlementStore.fetchOfferings()
+
+                // Track app opens for session-based paywall trigger
+                if hasCompletedOnboarding && !entitlementStore.hasPro && !hasSeenSessionPaywall {
+                    appOpenCount += 1
+                    // Show paywall on 3rd open
+                    if appOpenCount >= 3 {
+                        hasSeenSessionPaywall = true
+                        // Brief delay so app loads first
+                        try? await Task.sleep(for: .seconds(1))
+                        await MainActor.run {
+                            showSessionPaywall = true
+                        }
+                    }
+                }
 
                 // Auto-sync once on launch (not on every appear)
                 guard !hasSyncedOnLaunch else { return }

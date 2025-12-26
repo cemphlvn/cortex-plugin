@@ -47,6 +47,9 @@ final class EntitlementStore {
     /// Current offering for paywall
     var currentOffering: Offering? { offerings?.current }
 
+    /// Weekly package from current offering
+    var weeklyPackage: Package? { currentOffering?.weekly }
+
     /// Monthly package from current offering
     var monthlyPackage: Package? { currentOffering?.monthly }
 

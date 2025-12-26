@@ -4,13 +4,13 @@ import RevenueCatUI
 
 // MARK: - Native RevenueCat Paywall Wrapper
 
-/// Custom Prism paywall with our own UI design.
-/// Uses RevenueCat for purchase handling but custom SwiftUI for presentation.
+/// Premium Prism paywall with psychological optimization.
+/// Uses RevenueCat for purchase handling with custom premium SwiftUI design.
 struct PrismPaywallView: View {
     let trigger: PaywallTrigger
 
     var body: some View {
-        CustomPaywallView(trigger: trigger)
+        PrismProPaywallView(trigger: trigger)
     }
 }
 

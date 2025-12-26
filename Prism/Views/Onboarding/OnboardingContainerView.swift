@@ -13,8 +13,9 @@ struct OnboardingContainerView: View {
         case concept = 1   // I → PRISM → O explanation
         case demo = 2      // The Demonstration
         case reveal = 3    // The Reveal (archetypes)
-        case auth = 4      // Sign In (optional)
-        case library = 5   // The Library
+        case auth = 4      // Sign In (optional) - before paywall so purchase links
+        case promo = 5     // Soft paywall (skippable)
+        case library = 6   // The Library
     }
 
     var body: some View {
@@ -47,6 +48,11 @@ struct OnboardingContainerView: View {
 
                 case .auth:
                     OnboardingAuthView {
+                        transitionTo(.promo)
+                    }
+
+                case .promo:
+                    OnboardingPromoView {
                         transitionTo(.library)
                     }
 
