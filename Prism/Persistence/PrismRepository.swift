@@ -86,6 +86,14 @@ actor PrismRepository: PrismRepositoryProtocol {
         let descriptor = FetchDescriptor<PrismRecord>()
         return try modelContext.fetch(descriptor).isEmpty
     }
+
+    /// Count user-created prisms (non-bundled)
+    func userCreatedCount() throws -> Int {
+        let descriptor = FetchDescriptor<PrismRecord>(
+            predicate: #Predicate { $0.isBundled == false }
+        )
+        return try modelContext.fetchCount(descriptor)
+    }
 }
 
 // MARK: - Mock Repository for Previews/Testing

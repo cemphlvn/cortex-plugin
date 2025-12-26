@@ -5,11 +5,13 @@ import SwiftData
 
 struct CreatorView: View {
     @StateObject private var vm = CreatorViewModel()
+    @Environment(EntitlementStore.self) private var entitlementStore
     @EnvironmentObject private var repository: HybridPrismRepository
     @State private var showPrizmateSuccess = false
     @State private var createdPrism: PrismDefinition?
     @State private var archetypeSelected = false
     @State private var showHelp = false
+    @State private var showPaywall = false
 
     // Callback when prism is created (for navigation)
     var onPrismCreated: ((PrismDefinition) -> Void)?
@@ -86,6 +88,9 @@ struct CreatorView: View {
                 Text("\"\(prism.name)\" has been saved to your Prisms.")
             }
         }
+        .fullScreenCover(isPresented: $showPaywall) {
+            PrismPaywallView(trigger: .createPrism)
+        }
     }
 
     // MARK: - Chat Flow
@@ -128,6 +133,12 @@ struct CreatorView: View {
     }
 
     private func saveDraft() {
+        // Check if user can create another prism
+        if !repository.canCreatePrism {
+            showPaywall = true
+            return
+        }
+
         Task {
             do {
                 if let prism = try await vm.finalizeAndSave(repo: repository) {

@@ -3,6 +3,7 @@ import SwiftData
 
 struct PrismListView: View {
     @Environment(SupabaseAuthService.self) private var auth
+    @Environment(EntitlementStore.self) private var entitlementStore
     @EnvironmentObject private var repository: HybridPrismRepository
 
     // MARK: - State (all in one place)
@@ -14,6 +15,8 @@ struct PrismListView: View {
     @State private var showDeleteAlert = false
     @State private var prismToDelete: PrismDefinition?
     @State private var showAccount = false
+    @State private var showPaywall = false
+    @State private var paywallTrigger: PaywallTrigger = .syncPrisms
 
     var body: some View {
         Group {
@@ -72,31 +75,52 @@ struct PrismListView: View {
                     status: repository.syncStatus,
                     isAuthenticated: auth.isAuthenticated,
                     pendingCount: repository.pendingSyncIds.count,
-                    onSync: { await repository.syncPendingPrisms() }
+                    hasPro: entitlementStore.hasPro,
+                    onSync: {
+                        if repository.canSync {
+                            await repository.syncPendingPrisms()
+                        } else {
+                            paywallTrigger = .syncPrisms
+                            showPaywall = true
+                        }
+                    }
                 )
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showAccount = true
-                } label: {
-                    if auth.isAuthenticated {
-                        // Signed in: show user avatar
-                        Circle()
-                            .fill(PrismTheme.glass)
-                            .frame(width: 30, height: 30)
-                            .overlay(
-                                Text(userInitials)
-                                    .font(.caption.weight(.medium))
-                                    .foregroundStyle(PrismTheme.textPrimary)
-                            )
-                    } else {
-                        // Not signed in: show person icon
-                        Image(systemName: "person.circle")
-                            .font(.title3)
-                            .foregroundStyle(PrismTheme.textSecondary)
+                HStack(spacing: 12) {
+                    // Prism count badge (only show for free users)
+                    if !entitlementStore.hasPro {
+                        PrismCountBadge(
+                            count: repository.userCreatedCount,
+                            limit: EntitlementStore.freePrismLimit
+                        )
+                    }
+
+                    Button {
+                        showAccount = true
+                    } label: {
+                        if auth.isAuthenticated {
+                            // Signed in: show user avatar
+                            Circle()
+                                .fill(PrismTheme.glass)
+                                .frame(width: 30, height: 30)
+                                .overlay(
+                                    Text(userInitials)
+                                        .font(.caption.weight(.medium))
+                                        .foregroundStyle(PrismTheme.textPrimary)
+                                )
+                        } else {
+                            // Not signed in: show person icon
+                            Image(systemName: "person.circle")
+                                .font(.title3)
+                                .foregroundStyle(PrismTheme.textSecondary)
+                        }
                     }
                 }
             }
+        }
+        .fullScreenCover(isPresented: $showPaywall) {
+            PrismPaywallView(trigger: paywallTrigger)
         }
     }
 
@@ -433,6 +457,33 @@ struct PrismCard: View {
                 )
         )
         .opacity(isAvailable ? 1.0 : 0.5)
+    }
+}
+
+// MARK: - Prism Count Badge (n/3)
+
+struct PrismCountBadge: View {
+    let count: Int
+    let limit: Int
+
+    private var isAtLimit: Bool { count >= limit }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "triangle.fill")
+                .font(.system(size: 10))
+                .foregroundStyle(isAtLimit ? .orange : PrismTheme.textSecondary)
+
+            Text("\(count)/\(limit)")
+                .font(.caption.weight(.medium).monospacedDigit())
+                .foregroundStyle(isAtLimit ? .orange : PrismTheme.textSecondary)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            Capsule()
+                .fill(isAtLimit ? Color.orange.opacity(0.15) : PrismTheme.glass)
+        )
     }
 }
 

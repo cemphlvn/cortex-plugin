@@ -24,3 +24,4 @@
 {"ts":"2025-12-25T20:05:52Z","type":"milestone","msg":"Detailed error handling: PrismError enum (15 cases), typed errors in PrismEngine/GoldenPrismAgent, rich error UI with icons/actions/recovery hints"}
 {"ts":"2025-12-25T20:09:55Z","type":"milestone","msg":"Sync complete: HybridRepo w/ persisted pending IDs, auth→sync wiring, AccountView sync UI, all views use HybridRepo"}
 {"ts":"2025-12-25T20:32:59Z","type":"milestone","msg":"SyncStatusButton: reusable component, tappable popover, auto-sync on launch/auth, green when synced, orange badge for pending"}
+{"ts":"2025-12-26T12:23:31Z","type":"milestone","msg":"Paywall MVP: RevenueCat SDK, EntitlementStore, PaywallView, 3-prism free gate, sync gate, n/3 badge, restore purchases"}

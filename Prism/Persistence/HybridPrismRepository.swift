@@ -34,12 +34,24 @@ final class HybridPrismRepository: ObservableObject {
     @Published private(set) var pendingSyncIds: Set<UUID> = [] {
         didSet { persistPendingIds() }
     }
+    @Published private(set) var userCreatedCount: Int = 0
+
+    /// Whether user can sync (authenticated + Plus entitlement)
+    var canSync: Bool {
+        auth.isAuthenticated && (entitlementStore?.hasPro ?? false)
+    }
+
+    /// Whether user can create another prism (Plus or under free limit)
+    var canCreatePrism: Bool {
+        entitlementStore?.canCreatePrism(userCreatedCount: userCreatedCount) ?? (userCreatedCount < EntitlementStore.freePrismLimit)
+    }
 
     // MARK: - Dependencies
 
     private let modelContainer: ModelContainer
     private let auth: SupabaseAuthService
     private var cloudRepo: SupabasePrismRepository?
+    private weak var entitlementStore: EntitlementStore?
 
     // MARK: - Persistence Keys
 
@@ -47,9 +59,10 @@ final class HybridPrismRepository: ObservableObject {
 
     // MARK: - Init
 
-    init(modelContainer: ModelContainer, auth: SupabaseAuthService) {
+    init(modelContainer: ModelContainer, auth: SupabaseAuthService, entitlementStore: EntitlementStore? = nil) {
         self.modelContainer = modelContainer
         self.auth = auth
+        self.entitlementStore = entitlementStore
 
         // Load persisted pending IDs
         self.pendingSyncIds = Self.loadPendingIds()
@@ -60,6 +73,26 @@ final class HybridPrismRepository: ObservableObject {
         }
 
         updateSyncStatus()
+
+        // Load initial user created count
+        Task {
+            await refreshUserCreatedCount()
+        }
+    }
+
+    /// Set the entitlement store reference (for dependency injection after init)
+    func setEntitlementStore(_ store: EntitlementStore) {
+        self.entitlementStore = store
+    }
+
+    /// Refresh user-created prism count from local storage
+    func refreshUserCreatedCount() async {
+        do {
+            let count = try await localRepo().userCreatedCount()
+            self.userCreatedCount = count
+        } catch {
+            // Silently fail, keep previous count
+        }
     }
 
     // MARK: - Local Repository
@@ -84,14 +117,15 @@ final class HybridPrismRepository: ObservableObject {
         // 1. Always save locally first (source of truth)
         try await localRepo().save(definition)
 
-        // 2. If authenticated, sync to cloud (non-blocking)
-        if auth.isAuthenticated {
+        // 2. Refresh user-created count
+        await refreshUserCreatedCount()
+
+        // 3. If authenticated AND has Pro entitlement, sync to cloud (non-blocking)
+        let hasPro = entitlementStore?.hasPro ?? false
+        if auth.isAuthenticated && hasPro {
             await syncToCloud(definition)
-        } else {
-            // Queue for later sync
-            pendingSyncIds.insert(definition.id)
-            updateSyncStatus()
         }
+        // Note: Free users don't queue for sync - local only
     }
 
     // MARK: - Delete
@@ -100,8 +134,12 @@ final class HybridPrismRepository: ObservableObject {
         // Delete locally (source of truth)
         try await localRepo().delete(id: id)
 
-        // Delete from cloud if authenticated (non-blocking)
-        if auth.isAuthenticated, let cloudRepo {
+        // Refresh user-created count
+        await refreshUserCreatedCount()
+
+        // Delete from cloud if authenticated AND has Pro (non-blocking)
+        let hasPro = entitlementStore?.hasPro ?? false
+        if auth.isAuthenticated && hasPro, let cloudRepo {
             Task {
                 try? await cloudRepo.delete(id: id)
             }
@@ -141,9 +179,10 @@ final class HybridPrismRepository: ObservableObject {
         }
     }
 
-    /// Push all pending prisms to cloud
+    /// Push all pending prisms to cloud (requires Pro)
     func syncPendingPrisms() async {
         guard auth.isAuthenticated else { return }
+        guard entitlementStore?.hasPro == true else { return }
         guard !pendingSyncIds.isEmpty else {
             syncStatus = .idle
             return
@@ -180,9 +219,11 @@ final class HybridPrismRepository: ObservableObject {
         }
     }
 
-    /// Pull from cloud (user-initiated)
+    /// Pull from cloud (user-initiated, requires Pro)
     func pullFromCloud() async throws {
-        guard auth.isAuthenticated, let cloudRepo else { return }
+        guard auth.isAuthenticated else { return }
+        guard entitlementStore?.hasPro == true else { return }
+        guard let cloudRepo else { return }
 
         syncStatus = .syncing
 
@@ -202,9 +243,10 @@ final class HybridPrismRepository: ObservableObject {
         }
     }
 
-    /// Push all local prisms to cloud (user-initiated)
+    /// Push all local prisms to cloud (user-initiated, requires Pro)
     func pushAllToCloud() async throws {
         guard auth.isAuthenticated else { return }
+        guard entitlementStore?.hasPro == true else { return }
 
         if cloudRepo == nil {
             cloudRepo = SupabasePrismRepository()

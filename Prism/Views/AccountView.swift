@@ -5,11 +5,15 @@ import Supabase
 /// Account settings view - shows auth state and sign in/out options
 struct AccountView: View {
     @Environment(SupabaseAuthService.self) private var auth
+    @Environment(EntitlementStore.self) private var entitlementStore
     @EnvironmentObject private var repository: HybridPrismRepository
     @Environment(\.dismiss) private var dismiss
 
     @State private var showAuthSheet = false
     @State private var showSignOutConfirm = false
+    @State private var showPaywall = false
+    @State private var isRestoring = false
+    @State private var restoreMessage: String?
 
     var body: some View {
         List {
@@ -23,8 +27,16 @@ struct AccountView: View {
             }
             .listRowBackground(PrismTheme.surface)
 
-            // MARK: - Sync (only if authenticated)
-            if auth.isAuthenticated {
+            // MARK: - Subscription
+            Section {
+                subscriptionSection
+            } header: {
+                Text("Subscription")
+            }
+            .listRowBackground(PrismTheme.surface)
+
+            // MARK: - Sync (only if authenticated AND has Plus)
+            if auth.isAuthenticated && entitlementStore.hasPro {
                 Section {
                     syncSection
                 } header: {
@@ -86,12 +98,16 @@ struct AccountView: View {
                     status: repository.syncStatus,
                     isAuthenticated: auth.isAuthenticated,
                     pendingCount: repository.pendingSyncIds.count,
+                    hasPro: entitlementStore.hasPro,
                     onSync: { await repository.syncPendingPrisms() }
                 )
             }
         }
         .sheet(isPresented: $showAuthSheet) {
             AuthView(showSkipOption: false)
+        }
+        .fullScreenCover(isPresented: $showPaywall) {
+            PrismPaywallView(trigger: .syncPrisms)
         }
         .confirmationDialog("Sign Out", isPresented: $showSignOutConfirm) {
             Button("Sign Out", role: .destructive) {
@@ -134,6 +150,106 @@ struct AccountView: View {
             }
         }
         .padding(.vertical, 4)
+    }
+
+    // MARK: - Subscription Section
+
+    private var subscriptionSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if entitlementStore.hasPro {
+                // Pro active
+                HStack {
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundStyle(.green)
+                    Text("Prism Pro Active")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(PrismTheme.textPrimary)
+                    Spacer()
+                    Text("✨")
+                }
+                Text("Unlimited prisms, cloud sync, and sharing enabled.")
+                    .font(.caption)
+                    .foregroundStyle(PrismTheme.textSecondary)
+
+                // Manage subscription via Customer Center
+                ManageSubscriptionButton()
+            } else {
+                // Free tier
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Free Plan")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(PrismTheme.textPrimary)
+                        Text("\(repository.userCreatedCount)/\(EntitlementStore.freePrismLimit) prisms used")
+                            .font(.caption)
+                            .foregroundStyle(PrismTheme.textSecondary)
+                    }
+                    Spacer()
+                }
+
+                Button {
+                    showPaywall = true
+                } label: {
+                    HStack {
+                        Image(systemName: "sparkles")
+                        Text("Upgrade to Prism Pro")
+                    }
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        LinearGradient(
+                            colors: [.orange, .yellow],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+
+                // Restore purchases
+                Button {
+                    restorePurchases()
+                } label: {
+                    if isRestoring {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    } else {
+                        Text("Restore Purchases")
+                            .font(.caption)
+                            .foregroundStyle(PrismTheme.textSecondary)
+                    }
+                }
+                .disabled(isRestoring)
+
+                if let message = restoreMessage {
+                    Text(message)
+                        .font(.caption)
+                        .foregroundStyle(message.contains("found") ? .green : PrismTheme.textTertiary)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func restorePurchases() {
+        isRestoring = true
+        restoreMessage = nil
+
+        Task {
+            do {
+                let info = try await entitlementStore.restorePurchases()
+                if info.entitlements[EntitlementStore.entitlementId]?.isActive == true {
+                    restoreMessage = "Prism Pro restored!"
+                } else {
+                    restoreMessage = "No active subscription found."
+                }
+            } catch {
+                restoreMessage = "Restore failed. Try again."
+            }
+            isRestoring = false
+        }
     }
 
     // MARK: - Sync Section

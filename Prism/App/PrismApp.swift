@@ -1,10 +1,12 @@
 import SwiftUI
 import SwiftData
 import UIKit
+import RevenueCat
 
 @main
 struct PrismApp: App {
     @State private var authService = SupabaseAuthService()
+    @State private var entitlementStore = EntitlementStore()
     @StateObject private var repository: HybridPrismRepository
 
     let modelContainer: ModelContainer
@@ -21,6 +23,9 @@ struct PrismApp: App {
                 modelContainer: container,
                 auth: auth
             ))
+
+            // Configure RevenueCat
+            EntitlementStore.configure()
 
             // Configure UIKit appearances for dark theme
             configureAppearance()
@@ -48,6 +53,7 @@ struct PrismApp: App {
         WindowGroup {
             RootView()
                 .environment(authService)
+                .environment(entitlementStore)
                 .environmentObject(repository)
         }
         .modelContainer(modelContainer)
@@ -58,6 +64,7 @@ struct PrismApp: App {
 
 struct RootView: View {
     @Environment(SupabaseAuthService.self) private var auth
+    @Environment(EntitlementStore.self) private var entitlementStore
     @EnvironmentObject private var repository: HybridPrismRepository
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
@@ -73,16 +80,22 @@ struct RootView: View {
                 }
             }
             .task {
+                // Wire entitlement store to repository
+                repository.setEntitlementStore(entitlementStore)
+
+                // Fetch offerings on launch
+                await entitlementStore.fetchOfferings()
+
                 // Auto-sync once on launch (not on every appear)
                 guard !hasSyncedOnLaunch else { return }
                 hasSyncedOnLaunch = true
-                if auth.isAuthenticated {
+                if auth.isAuthenticated && entitlementStore.hasPro {
                     await repository.syncPendingPrisms()
                 }
             }
             .onChange(of: auth.isAuthenticated) { _, isAuthenticated in
                 repository.onAuthStateChanged()
-                if isAuthenticated {
+                if isAuthenticated && entitlementStore.hasPro {
                     Task { await repository.syncPendingPrisms() }
                 }
             }

@@ -2,10 +2,12 @@ import SwiftUI
 
 /// Tappable sync status indicator with popover details.
 /// Shows cloud icon + badge, tappable for status popover with manual sync option.
+/// If user doesn't have Plus, shows lock and triggers paywall on tap.
 struct SyncStatusButton: View {
     let status: SyncStatus
     let isAuthenticated: Bool
     let pendingCount: Int
+    var hasPro: Bool = true
     let onSync: () async -> Void
 
     @State private var showPopover = false
@@ -16,9 +18,17 @@ struct SyncStatusButton: View {
         return false
     }
 
+    /// If authenticated but no Plus, show locked state
+    private var isLocked: Bool {
+        isAuthenticated && !hasPro
+    }
+
     private var icon: String {
         if !isAuthenticated {
             return "icloud.slash"
+        }
+        if isLocked {
+            return "lock.icloud"
         }
         switch status {
         case .idle:
@@ -40,6 +50,9 @@ struct SyncStatusButton: View {
         if !isAuthenticated {
             return PrismTheme.textTertiary
         }
+        if isLocked {
+            return .orange
+        }
         switch status {
         case .idle:
             return pendingCount > 0 ? .orange : .green.opacity(0.8)
@@ -60,6 +73,9 @@ struct SyncStatusButton: View {
         if !isAuthenticated {
             return "Sign in to sync"
         }
+        if isLocked {
+            return "Sync locked"
+        }
         switch status {
         case .idle:
             return pendingCount > 0 ? "\(pendingCount) waiting" : "Synced"
@@ -79,6 +95,9 @@ struct SyncStatusButton: View {
     private var detailText: String {
         if !isAuthenticated {
             return "Your prisms are stored locally. Sign in to back them up to the cloud."
+        }
+        if isLocked {
+            return "Upgrade to Prism Pro to sync your prisms across devices."
         }
         switch status {
         case .idle where pendingCount > 0:
@@ -144,35 +163,54 @@ struct SyncStatusButton: View {
                     }
                 }
 
-                // Sync button if applicable
-                if isAuthenticated && (pendingCount > 0 || isError) {
+                // Action button
+                if isAuthenticated {
                     Divider()
 
-                    Button {
-                        isSyncing = true
-                        Task {
-                            await onSync()
-                            isSyncing = false
+                    if isLocked {
+                        // Upgrade button for locked state
+                        Button {
                             showPopover = false
-                        }
-                    } label: {
-                        HStack {
-                            if isSyncing {
-                                ProgressView()
-                                    .scaleEffect(0.7)
-                                    .tint(.white)
-                            } else {
-                                Image(systemName: "arrow.triangle.2.circlepath")
+                            Task { await onSync() }
+                        } label: {
+                            HStack {
+                                Image(systemName: "sparkles")
+                                Text("Upgrade to Prism Pro")
                             }
-                            Text(isSyncing ? "Syncing..." : "Sync Now")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(Capsule().fill(Color.orange))
                         }
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(Capsule().fill(Color.accentColor))
+                    } else if pendingCount > 0 || isError {
+                        // Sync button
+                        Button {
+                            isSyncing = true
+                            Task {
+                                await onSync()
+                                isSyncing = false
+                                showPopover = false
+                            }
+                        } label: {
+                            HStack {
+                                if isSyncing {
+                                    ProgressView()
+                                        .scaleEffect(0.7)
+                                        .tint(.white)
+                                } else {
+                                    Image(systemName: "arrow.triangle.2.circlepath")
+                                }
+                                Text(isSyncing ? "Syncing..." : "Sync Now")
+                            }
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(Capsule().fill(Color.accentColor))
+                        }
+                        .disabled(isSyncing)
                     }
-                    .disabled(isSyncing)
                 }
             }
             .padding()

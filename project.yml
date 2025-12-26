@@ -22,6 +22,9 @@ packages:
   Supabase:
     url: https://github.com/supabase/supabase-swift
     from: "2.0.0"
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios-spm
+    from: "5.0.0"
 
 targets:
   Prism:
@@ -62,6 +65,10 @@ targets:
     dependencies:
       - package: Supabase
         product: Supabase
+      - package: RevenueCat
+        product: RevenueCat
+      - package: RevenueCat
+        product: RevenueCatUI
 
 schemes:
   Prism:
